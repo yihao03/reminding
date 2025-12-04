@@ -4,8 +4,25 @@
 
 package database
 
+import (
+	"github.com/jackc/pgx/v5/pgtype"
+)
+
+type Event struct {
+	ID           int32
+	CreatedAt    pgtype.Timestamp
+	UpdatedAt    pgtype.Timestamp
+	Organiser    pgtype.Text
+	IsOnline     bool
+	LocationName pgtype.Text
+	StartTime    pgtype.Timestamp
+	EndTime      pgtype.Timestamp
+	Details      pgtype.Text
+}
+
 type User struct {
-	ID    int32
-	Name  string
-	Email string
+	ID          int32
+	FirebaseUid string
+	UserName    string
+	Email       string
 }

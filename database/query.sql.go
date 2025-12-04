@@ -10,13 +10,18 @@ import (
 )
 
 const getUser = `-- name: GetUser :one
-SELECT id, name, email FROM users
+SELECT id, firebase_uid, user_name, email FROM users
   WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetUser(ctx context.Context, id int32) (User, error) {
 	row := q.db.QueryRow(ctx, getUser, id)
 	var i User
-	err := row.Scan(&i.ID, &i.Name, &i.Email)
+	err := row.Scan(
+		&i.ID,
+		&i.FirebaseUid,
+		&i.UserName,
+		&i.Email,
+	)
 	return i, err
 }
