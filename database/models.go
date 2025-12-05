@@ -23,6 +23,7 @@ type Event struct {
 type User struct {
 	ID          int32
 	FirebaseUid string
+	CreatedAt   pgtype.Timestamp
 	UserName    string
 	Email       string
 }

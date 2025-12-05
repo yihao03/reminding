@@ -1,3 +1,6 @@
+-- +goose Up
+-- +goose StatementBegin
+SELECT 'up SQL query';
 CREATE TABLE users (
     id           SERIAL       PRIMARY KEY,
     firebase_uid VARCHAR(255) UNIQUE   NOT NULL,
@@ -17,3 +20,11 @@ CREATE TABLE events (
     end_time      TIMESTAMP,
     details       TEXT
 );
+-- +goose StatementEnd
+
+-- +goose Down
+-- +goose StatementBegin
+SELECT 'down SQL query';
+DROP TABLE IF EXISTS events;
+DROP TABLE IF EXISTS users;
+-- +goose StatementEnd
