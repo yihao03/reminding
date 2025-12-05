@@ -10,20 +10,20 @@ import (
 
 type Event struct {
 	ID           int32
-	CreatedAt    pgtype.Timestamp
-	UpdatedAt    pgtype.Timestamp
+	CreatedAt    pgtype.Timestamptz
+	UpdatedAt    pgtype.Timestamptz
 	Organiser    pgtype.Text
 	IsOnline     bool
 	LocationName pgtype.Text
-	StartTime    pgtype.Timestamp
-	EndTime      pgtype.Timestamp
+	StartTime    pgtype.Timestamptz
+	EndTime      pgtype.Timestamptz
 	Details      pgtype.Text
 }
 
 type User struct {
 	ID          int32
 	FirebaseUid string
-	CreatedAt   pgtype.Timestamp
+	CreatedAt   pgtype.Timestamptz
 	UserName    string
 	Email       string
 }
