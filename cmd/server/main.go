@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/yihao03/reminding/internal/database"
 	"github.com/yihao03/reminding/internal/firebase"
 	"github.com/yihao03/reminding/internal/router"
 )
@@ -21,7 +22,10 @@ func main() {
 		slog.Error("Error initializing firebase", "error", err)
 	}
 
-	r := router.Setup(app)
+	queries, pgxPool := database.Connect()
+	defer pgxPool.Close()
+
+	r := router.Setup(queries, app)
 
 	server := &http.Server{
 		Addr:              ":8080",

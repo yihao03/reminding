@@ -8,13 +8,14 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
 	"github.com/yihao03/reminding/internal/api"
+	database "github.com/yihao03/reminding/internal/database/sqlc"
 )
 
-func Setup(app *firebase.App) *chi.Mux {
+func Setup(queries *database.Queries, app *firebase.App) *chi.Mux {
 	r := chi.NewRouter()
 
 	SetupMiddleware(r)
-	SetupRoutes(r, app)
+	SetupRoutes(r, queries, app)
 	return r
 }
 
@@ -26,9 +27,9 @@ func SetupMiddleware(r *chi.Mux) {
 	r.Use(middleware.Timeout(60 * time.Second))
 }
 
-func SetupRoutes(r *chi.Mux, app *firebase.App) {
-	r.Get("/", api.HTTPHandler(app,
-		func(w http.ResponseWriter, r *http.Request, app *firebase.App) error {
+func SetupRoutes(r *chi.Mux, queries *database.Queries, app *firebase.App) {
+	r.Get("/", api.HTTPHandler(queries, app,
+		func(w http.ResponseWriter, r *http.Request, queries *database.Queries, app *firebase.App) error {
 			api.WriteResponse("Didn't forget to run", w)
 			return nil
 		}))
