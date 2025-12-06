@@ -10,6 +10,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/yihao03/reminding/internal/api"
 	database "github.com/yihao03/reminding/internal/database/sqlc"
+	"github.com/yihao03/reminding/internal/router/routes"
 )
 
 func Setup(queries *database.Queries, app *firebase.App) *chi.Mux {
@@ -35,5 +36,6 @@ func SetupRoutes(r *chi.Mux, queries *database.Queries, app *firebase.App) {
 			return nil
 		}))
 
-	r.Route("/user/", SetupUserRoutes(queries, app))
+	r.Route("/user/", routes.SetupUserRoutes(queries, app))
+	r.Route("/events/", routes.SetupEventRoutes(queries, app))
 }

@@ -1,4 +1,4 @@
-package router
+package routes
 
 import (
 	firebase "firebase.google.com/go/v4"
