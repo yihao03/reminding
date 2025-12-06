@@ -26,6 +26,6 @@ func getErrorMessage(err *AppError) string {
 	} else if err.ErrorMessage == "" {
 		return err.OriginalError.Error()
 	} else {
-		return err.ErrorMessage + ": " + err.OriginalError.Error()
+		return err.ErrorMessage + ":\n" + err.OriginalError.Error()
 	}
 }
