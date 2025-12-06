@@ -19,11 +19,13 @@ func CreateUser(w http.ResponseWriter, r *http.Request, queries *database.Querie
 	var req userview.CreateUserView
 	if err := api.Decode(r, &req); err != nil {
 		api.WriteError(http.StatusBadRequest, apperrors.Wrap(err, ErrParseUserView), w, r.Context())
+		return nil
 	}
 
 	user, err := queries.CreateUser(r.Context(), *req.ToCreateUserParams())
 	if err != nil {
 		api.WriteError(http.StatusInternalServerError, apperrors.Wrap(err, ErrCreateUser), w, r.Context())
+		return nil
 	}
 
 	api.WriteResponse(user, w, "User created successfully")
