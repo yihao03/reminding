@@ -1,3 +1,4 @@
+// Package user contains handlers related to user operations.
 package user
 
 import (

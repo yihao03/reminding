@@ -1,3 +1,4 @@
+// Package api provides HTTP handler utilities for the Reminding application.
 package api
 
 import (

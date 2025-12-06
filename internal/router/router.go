@@ -1,3 +1,4 @@
+// Package router sets up the HTTP router with middleware and routes.
 package router
 
 import (

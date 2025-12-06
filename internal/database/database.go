@@ -1,3 +1,5 @@
+// Package database is responsible for all database interactions.
+// This contains function to connect to the database, models and queries.
 package database
 
 import (

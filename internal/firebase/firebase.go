@@ -1,3 +1,4 @@
+// Package firebase provides initialization for Firebase Admin SDK.
 package firebase
 
 import (
