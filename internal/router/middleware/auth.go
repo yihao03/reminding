@@ -11,32 +11,36 @@ import (
 	"github.com/yihao03/reminding/internal/api"
 )
 
+var (
+	ErrRetrieveFirebaseClient = "Error retrieving firebase client"
+	ErrUnauthorized           = "Unauthorized access"
+	ErrInvalidToken           = "Invalid Firebase ID token"
+)
+
 func GetAuthMiddleware(app *firebase.App) func(http.Handler) http.Handler {
+	client, err := app.Auth(context.Background())
+	if err != nil {
+		slog.Error("Error getting firebase auth client", "error", err)
+		panic(err)
+	}
+
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			client, err := app.Auth(r.Context())
-			if err != nil {
-				slog.Error("Error retrieving firebase client", "error", err)
-				api.WriteError(http.StatusInternalServerError, &apperrors.InternalServerError{}, w, r.Context())
-				return
-			}
-
 			authHeader := r.Header.Get("Authorization")
 			if authHeader == "" {
-				api.WriteError(http.StatusUnauthorized, &apperrors.UnauthorizedError{}, w, r.Context())
+				api.WriteError(http.StatusUnauthorized, apperrors.Wrap(nil, ErrUnauthorized), w, r.Context())
 				return
 			}
 
 			tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 			if tokenString == authHeader { // Prefix wasn't found
-				api.WriteError(http.StatusUnauthorized, &apperrors.UnauthorizedError{}, w, r.Context())
+				api.WriteError(http.StatusUnauthorized, apperrors.Wrap(nil, ErrUnauthorized), w, r.Context())
 				return
 			}
 
 			token, err := client.VerifyIDToken(r.Context(), tokenString)
 			if err != nil {
-				slog.Error("Error verifying Firebase ID token", "error", err)
-				api.WriteError(http.StatusUnauthorized, &apperrors.UnauthorizedError{}, w, r.Context())
+				api.WriteError(http.StatusUnauthorized, apperrors.Wrap(err, ErrInvalidToken), w, r.Context())
 				return
 			}
 
