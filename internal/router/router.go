@@ -7,6 +7,7 @@ import (
 	firebase "firebase.google.com/go/v4"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
+	"github.com/yihao03/reminding/apperrors"
 	"github.com/yihao03/reminding/internal/api"
 	database "github.com/yihao03/reminding/internal/database/sqlc"
 )
@@ -33,4 +34,6 @@ func SetupRoutes(r *chi.Mux, queries *database.Queries, app *firebase.App) {
 			api.WriteResponse("Didn't forget to run", w)
 			return nil
 		}))
+
+	r.Route("/user/", SetupUserRoutes(queries, app))
 }
