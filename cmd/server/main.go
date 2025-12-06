@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/joho/godotenv"
 	"github.com/yihao03/reminding/internal/database"
 	"github.com/yihao03/reminding/internal/firebase"
 	"github.com/yihao03/reminding/internal/router"
@@ -16,6 +17,7 @@ const (
 
 func main() {
 	slog.Info("Starting server...")
+	godotenv.Load(".env")
 
 	app, err := firebase.InitFirebase()
 	if err != nil {

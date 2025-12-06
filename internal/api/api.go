@@ -8,6 +8,7 @@ import (
 	"time"
 
 	firebase "firebase.google.com/go/v4"
+	database "github.com/yihao03/reminding/internal/database/sqlc"
 )
 
 type Response struct {
@@ -15,13 +16,13 @@ type Response struct {
 	Data     any
 }
 
-type Handler = func(http.ResponseWriter, *http.Request, *firebase.App) error
+type Handler = func(http.ResponseWriter, *http.Request, *database.Queries, *firebase.App) error
 
 // HTTPHandler converts the internal Handler type into a standard http.HandlerFunc.
-func HTTPHandler(app *firebase.App, handler Handler) http.HandlerFunc {
+func HTTPHandler(queries *database.Queries, app *firebase.App, handler Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if err := handler(w, r, app); err != nil {
+			if err := handler(w, r, queries, app); err != nil {
 				WriteError(http.StatusInternalServerError, err, w, r.Context())
 			}
 		})
@@ -46,17 +47,13 @@ func WriteResponse(payload any, w http.ResponseWriter, message ...string) {
 	}
 }
 
-func WriteError(code int, err error, w http.ResponseWriter, ctx context.Context, messages ...string) {
-	slog.ErrorContext(ctx, "API Error", "error", err)
+func WriteError(code int, err error, w http.ResponseWriter, ctx context.Context) {
+	slog.ErrorContext(ctx, "Error: "+err.Error())
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 
 	res := Response{
 		Messages: []string{err.Error()},
-	}
-
-	if len(messages) > 0 {
-		res.Messages = append(res.Messages, messages...)
 	}
 
 	if err := json.NewEncoder(w).Encode(res); err != nil {
