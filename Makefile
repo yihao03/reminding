@@ -6,7 +6,7 @@ SQLC_PATH=./database
 run:
 	@air
 
-sql:
+sqlc:
 	@cd $(SQLC_PATH) && sqlc generate
 
 migrate-up:
