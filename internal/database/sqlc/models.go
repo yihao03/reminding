@@ -18,6 +18,7 @@ type Event struct {
 	StartTime    pgtype.Timestamptz
 	EndTime      pgtype.Timestamptz
 	Details      pgtype.Text
+	EventName    string
 }
 
 type User struct {
@@ -26,4 +27,5 @@ type User struct {
 	CreatedAt   pgtype.Timestamptz
 	UserName    string
 	Email       string
+	UpdatedAt   pgtype.Timestamptz
 }

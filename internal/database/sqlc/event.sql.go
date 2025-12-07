@@ -10,7 +10,7 @@ import (
 )
 
 const listEvents = `-- name: ListEvents :many
-SELECT id, created_at, updated_at, organiser, is_online, location_name, start_time, end_time, details FROM events
+SELECT id, created_at, updated_at, organiser, is_online, location_name, start_time, end_time, details, event_name FROM events
 `
 
 func (q *Queries) ListEvents(ctx context.Context) ([]Event, error) {
@@ -32,6 +32,7 @@ func (q *Queries) ListEvents(ctx context.Context) ([]Event, error) {
 			&i.StartTime,
 			&i.EndTime,
 			&i.Details,
+			&i.EventName,
 		); err != nil {
 			return nil, err
 		}

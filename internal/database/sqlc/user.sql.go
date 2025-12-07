@@ -12,7 +12,7 @@ import (
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (firebase_uid, user_name, email)
 VALUES ($1, $2, $3)
-RETURNING id, firebase_uid, created_at, user_name, email
+RETURNING id, firebase_uid, created_at, user_name, email, updated_at
 `
 
 type CreateUserParams struct {
@@ -30,12 +30,13 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.CreatedAt,
 		&i.UserName,
 		&i.Email,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, firebase_uid, created_at, user_name, email FROM users
+SELECT id, firebase_uid, created_at, user_name, email, updated_at FROM users
 WHERE id = $1
 ORDER BY created_at DESC
 LIMIT 1
@@ -50,6 +51,7 @@ func (q *Queries) GetUser(ctx context.Context, id int32) (User, error) {
 		&i.CreatedAt,
 		&i.UserName,
 		&i.Email,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
