@@ -9,7 +9,7 @@ import (
 	"time"
 
 	firebase "firebase.google.com/go/v4"
-	database "github.com/yihao03/reminding/internal/database/sqlc"
+	"github.com/yihao03/reminding/internal/database/sqlc"
 )
 
 type Response struct {
@@ -17,10 +17,10 @@ type Response struct {
 	Data     any
 }
 
-type Handler = func(http.ResponseWriter, *http.Request, *database.Queries, *firebase.App) error
+type Handler = func(http.ResponseWriter, *http.Request, *sqlc.Queries, *firebase.App) error
 
 // HTTPHandler converts the internal Handler type into a standard http.HandlerFunc.
-func HTTPHandler(queries *database.Queries, app *firebase.App, handler Handler) http.HandlerFunc {
+func HTTPHandler(queries *sqlc.Queries, app *firebase.App, handler Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if err := handler(w, r, queries, app); err != nil {

@@ -7,7 +7,7 @@ import (
 	firebase "firebase.google.com/go/v4"
 	"github.com/yihao03/reminding/apperrors"
 	"github.com/yihao03/reminding/internal/api"
-	database "github.com/yihao03/reminding/internal/database/sqlc"
+	"github.com/yihao03/reminding/internal/database/sqlc"
 	"github.com/yihao03/reminding/internal/views/userview"
 )
 
@@ -16,7 +16,7 @@ var (
 	ErrCreateUser    = "Error creating user"
 )
 
-func CreateUser(w http.ResponseWriter, r *http.Request, queries *database.Queries, app *firebase.App) error {
+func CreateUser(w http.ResponseWriter, r *http.Request, queries *sqlc.Queries, app *firebase.App) error {
 	var req userview.CreateUserView
 	if err := api.Decode(r, &req); err != nil {
 		api.WriteError(http.StatusBadRequest, apperrors.Wrap(err, ErrParseUserView), w, r.Context())

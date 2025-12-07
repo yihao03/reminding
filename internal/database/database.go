@@ -8,10 +8,10 @@ import (
 	"os"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	database "github.com/yihao03/reminding/internal/database/sqlc"
+	"github.com/yihao03/reminding/internal/database/sqlc"
 )
 
-func Connect() (*database.Queries, *pgxpool.Pool) {
+func Connect() (*sqlc.Queries, *pgxpool.Pool) {
 	connStr := os.Getenv("DATABASE_URL")
 	pool, err := pgxpool.New(context.Background(), connStr)
 	if err != nil {
@@ -19,5 +19,5 @@ func Connect() (*database.Queries, *pgxpool.Pool) {
 		panic(err)
 	}
 
-	return database.New(pool), pool
+	return sqlc.New(pool), pool
 }
