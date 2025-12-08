@@ -5,7 +5,9 @@ go 1.25.5
 require (
 	github.com/go-chi/chi v1.5.5
 	github.com/go-chi/chi/v5 v5.2.3
+	github.com/go-playground/validator/v10 v10.28.0
 	github.com/jackc/pgx/v5 v5.7.6
+	github.com/rs/cors v1.11.1
 	google.golang.org/api v0.257.0
 )
 
@@ -35,7 +37,6 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/go-playground/validator/v10 v10.28.0 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/s2a-go v0.1.9 // indirect

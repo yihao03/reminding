@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
+	"github.com/rs/cors"
 	"github.com/yihao03/reminding/internal/database"
 	"github.com/yihao03/reminding/internal/firebase"
 	"github.com/yihao03/reminding/internal/router"
@@ -31,10 +32,11 @@ func main() {
 	defer pgxPool.Close()
 
 	r := router.Setup(queries, app)
+	cors := getCorsConfig().Handler(r)
 
 	server := &http.Server{
 		Addr:              ":8080",
-		Handler:           r,
+		Handler:           cors,
 		ReadHeaderTimeout: READ_HEADER_TIMEOUT_SEC * time.Second,
 	}
 
@@ -43,4 +45,11 @@ func main() {
 		slog.Error("Server failed to start: %v", "error", err)
 		panic(err)
 	}
+}
+
+func getCorsConfig() *cors.Cors {
+	return cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:8081"},
+		AllowCredentials: true,
+	})
 }
