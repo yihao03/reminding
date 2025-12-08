@@ -11,3 +11,6 @@ sqlc:
 
 migrate-up:
 	@cd database/schema && goose postgres "$(DATABASE_URL)" up
+
+seed: 
+	@goose postgres "$(DATABASE_URL)" -dir ./database/seed -no-versioning up
