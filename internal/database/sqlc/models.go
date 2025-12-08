@@ -28,4 +28,5 @@ type User struct {
 	UserName    string
 	Email       string
 	UpdatedAt   pgtype.Timestamptz
+	IsAdmin     bool
 }

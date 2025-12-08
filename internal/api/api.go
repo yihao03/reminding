@@ -13,8 +13,8 @@ import (
 )
 
 type Response struct {
-	Messages []string
-	Data     any
+	Messages []string `json:"messages"`
+	Data     any      `json:"data"`
 }
 
 type Handler = func(http.ResponseWriter, *http.Request, *sqlc.Queries, *firebase.App) error

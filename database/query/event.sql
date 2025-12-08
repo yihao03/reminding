@@ -1,2 +1,14 @@
 -- name: ListEvents :many
-SELECT * FROM events;
+SELECT
+    id,
+    organiser,
+    is_online,
+    location_name,
+    start_time,
+    end_time,
+    event_name
+FROM events;
+
+-- name: GetEventById :one
+SELECT * FROM events
+WHERE id = $1;

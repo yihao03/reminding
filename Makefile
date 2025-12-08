@@ -12,5 +12,11 @@ sqlc:
 migrate-up:
 	@cd database/schema && goose postgres "$(DATABASE_URL)" up
 
-seed: 
+goose-create:
+	@cd database/schema && goose create $(name) sql
+
+seed:
 	@goose postgres "$(DATABASE_URL)" -dir ./database/seed -no-versioning up
+
+unseed:
+	@goose postgres "$(DATABASE_URL)" -dir ./database/seed -no-versioning down

@@ -7,6 +7,7 @@ import (
 	"github.com/yihao03/reminding/apperrors"
 	"github.com/yihao03/reminding/internal/api"
 	"github.com/yihao03/reminding/internal/database/sqlc"
+	"github.com/yihao03/reminding/internal/views/eventview"
 )
 
 var (
@@ -14,13 +15,15 @@ var (
 	SuccessGetEvents = "Events retrieved successfully"
 )
 
-func GetEvents(w http.ResponseWriter, r *http.Request, queries *sqlc.Queries, app *firebase.App) error {
+func HandleGetEvents(w http.ResponseWriter, r *http.Request, queries *sqlc.Queries, app *firebase.App) error {
 	events, err := queries.ListEvents(r.Context())
 	if err != nil {
 		api.WriteError(http.StatusInternalServerError, apperrors.Wrap(err, ErrGetEvents), w, r.Context())
 		return nil
 	}
 
-	api.WriteResponse(events, w, SuccessGetEvents)
+	view := eventview.ToEventListView(&events)
+
+	api.WriteResponse(view, w, SuccessGetEvents)
 	return nil
 }

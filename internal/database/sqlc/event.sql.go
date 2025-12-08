@@ -7,31 +7,71 @@ package sqlc
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const listEvents = `-- name: ListEvents :many
+const getEventById = `-- name: GetEventById :one
 SELECT id, created_at, updated_at, organiser, is_online, location_name, start_time, end_time, details, event_name FROM events
+WHERE id = $1
 `
 
-func (q *Queries) ListEvents(ctx context.Context) ([]Event, error) {
+func (q *Queries) GetEventById(ctx context.Context, id int32) (Event, error) {
+	row := q.db.QueryRow(ctx, getEventById, id)
+	var i Event
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Organiser,
+		&i.IsOnline,
+		&i.LocationName,
+		&i.StartTime,
+		&i.EndTime,
+		&i.Details,
+		&i.EventName,
+	)
+	return i, err
+}
+
+const listEvents = `-- name: ListEvents :many
+SELECT
+    id,
+    organiser,
+    is_online,
+    location_name,
+    start_time,
+    end_time,
+    event_name
+FROM events
+`
+
+type ListEventsRow struct {
+	ID           int32
+	Organiser    pgtype.Text
+	IsOnline     bool
+	LocationName pgtype.Text
+	StartTime    pgtype.Timestamptz
+	EndTime      pgtype.Timestamptz
+	EventName    string
+}
+
+func (q *Queries) ListEvents(ctx context.Context) ([]ListEventsRow, error) {
 	rows, err := q.db.Query(ctx, listEvents)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Event
+	var items []ListEventsRow
 	for rows.Next() {
-		var i Event
+		var i ListEventsRow
 		if err := rows.Scan(
 			&i.ID,
-			&i.CreatedAt,
-			&i.UpdatedAt,
 			&i.Organiser,
 			&i.IsOnline,
 			&i.LocationName,
 			&i.StartTime,
 			&i.EndTime,
-			&i.Details,
 			&i.EventName,
 		); err != nil {
 			return nil, err
