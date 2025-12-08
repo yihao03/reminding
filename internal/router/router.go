@@ -30,12 +30,14 @@ func SetupMiddleware(r *chi.Mux) {
 }
 
 func SetupRoutes(r *chi.Mux, queries *sqlc.Queries, app *firebase.App) {
-	r.Get("/", api.HTTPHandler(queries, app,
-		func(w http.ResponseWriter, r *http.Request, queries *sqlc.Queries, app *firebase.App) error {
-			api.WriteResponse("Didn't forget to run", w)
-			return nil
-		}))
+	r.Route("/api", func(r chi.Router) {
+		r.Get("/", api.HTTPHandler(queries, app,
+			func(w http.ResponseWriter, r *http.Request, queries *sqlc.Queries, app *firebase.App) error {
+				api.WriteResponse("Didn't forget to run", w)
+				return nil
+			}))
 
-	r.Route("/user/", routes.SetupUserRoutes(queries, app))
-	r.Route("/events/", routes.SetupEventRoutes(queries, app))
+		r.Route("/user", routes.SetupUserRoutes(queries, app))
+		r.Route("/events", routes.SetupEventRoutes(queries, app))
+	})
 }
