@@ -12,13 +12,37 @@ import (
 )
 
 const getEventById = `-- name: GetEventById :one
-SELECT id, created_at, updated_at, organiser, is_online, location_name, start_time, end_time, details, event_name FROM events
-WHERE id = $1
+SELECT 
+    e.id, e.created_at, e.updated_at, e.organiser, e.is_online, e.location_name, e.start_time, e.end_time, e.details, e.event_name,
+    (er.user_id IS NOT NULL)::boolean AS is_registered
+FROM events AS e
+LEFT JOIN event_registrations AS er
+    ON e.id = er.event_id AND er.user_id = $2
+WHERE e.id = $1
 `
 
-func (q *Queries) GetEventById(ctx context.Context, id int32) (Event, error) {
-	row := q.db.QueryRow(ctx, getEventById, id)
-	var i Event
+type GetEventByIdParams struct {
+	ID     int32
+	UserID int32
+}
+
+type GetEventByIdRow struct {
+	ID           int32
+	CreatedAt    pgtype.Timestamptz
+	UpdatedAt    pgtype.Timestamptz
+	Organiser    pgtype.Text
+	IsOnline     bool
+	LocationName pgtype.Text
+	StartTime    pgtype.Timestamptz
+	EndTime      pgtype.Timestamptz
+	Details      pgtype.Text
+	EventName    string
+	IsRegistered bool
+}
+
+func (q *Queries) GetEventById(ctx context.Context, arg GetEventByIdParams) (GetEventByIdRow, error) {
+	row := q.db.QueryRow(ctx, getEventById, arg.ID, arg.UserID)
+	var i GetEventByIdRow
 	err := row.Scan(
 		&i.ID,
 		&i.CreatedAt,
@@ -30,6 +54,7 @@ func (q *Queries) GetEventById(ctx context.Context, id int32) (Event, error) {
 		&i.EndTime,
 		&i.Details,
 		&i.EventName,
+		&i.IsRegistered,
 	)
 	return i, err
 }
@@ -73,6 +98,61 @@ func (q *Queries) ListEvents(ctx context.Context) ([]ListEventsRow, error) {
 			&i.StartTime,
 			&i.EndTime,
 			&i.EventName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listEventsWithUserRegistration = `-- name: ListEventsWithUserRegistration :many
+SELECT
+    e.id,
+    e.organiser,
+    e.is_online,
+    e.location_name,
+    e.start_time,
+    e.end_time,
+    e.event_name,
+    (er.user_id IS NOT NULL)::boolean AS is_registered
+FROM events AS e
+LEFT JOIN event_registrations AS er
+    ON e.id = er.event_id AND er.user_id = $1
+`
+
+type ListEventsWithUserRegistrationRow struct {
+	ID           int32
+	Organiser    pgtype.Text
+	IsOnline     bool
+	LocationName pgtype.Text
+	StartTime    pgtype.Timestamptz
+	EndTime      pgtype.Timestamptz
+	EventName    string
+	IsRegistered bool
+}
+
+func (q *Queries) ListEventsWithUserRegistration(ctx context.Context, userID int32) ([]ListEventsWithUserRegistrationRow, error) {
+	rows, err := q.db.Query(ctx, listEventsWithUserRegistration, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListEventsWithUserRegistrationRow
+	for rows.Next() {
+		var i ListEventsWithUserRegistrationRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Organiser,
+			&i.IsOnline,
+			&i.LocationName,
+			&i.StartTime,
+			&i.EndTime,
+			&i.EventName,
+			&i.IsRegistered,
 		); err != nil {
 			return nil, err
 		}

@@ -9,6 +9,25 @@ SELECT
     event_name
 FROM events;
 
+-- name: ListEventsWithUserRegistration :many
+SELECT
+    e.id,
+    e.organiser,
+    e.is_online,
+    e.location_name,
+    e.start_time,
+    e.end_time,
+    e.event_name,
+    (er.user_id IS NOT NULL)::boolean AS is_registered
+FROM events AS e
+LEFT JOIN event_registrations AS er
+    ON e.id = er.event_id AND er.user_id = $1;
+
 -- name: GetEventById :one
-SELECT * FROM events
-WHERE id = $1;
+SELECT
+    e.*,
+    (er.user_id IS NOT NULL)::boolean AS is_registered
+FROM events AS e
+LEFT JOIN event_registrations AS er
+    ON e.id = er.event_id AND er.user_id = $2
+WHERE e.id = $1;
