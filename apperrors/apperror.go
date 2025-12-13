@@ -15,6 +15,13 @@ func Wrap(originalError error, errorMessage string) *AppError {
 	}
 }
 
+func New(originalError error) *AppError {
+	return &AppError{
+		OriginalError: nil,
+		ErrorMessage:  originalError.Error(),
+	}
+}
+
 func NewInternalError(originalError error, errorMessage string) *AppError {
 	return Wrap(originalError, "Internal server error: "+errorMessage)
 }
