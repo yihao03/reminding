@@ -45,8 +45,12 @@ func GetAuthMiddleware(app *firebase.App) func(http.Handler) http.Handler {
 			}
 
 			// Add the UID to the context so handlers can access it
-			ctx := context.WithValue(r.Context(), UserIDKey, token.UID)
+			ctx := context.WithValue(r.Context(), UserUIDKey, token.UID)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
+}
+
+func GetUserIDFromContext(ctx context.Context) string {
+	return ctx.Value(UserUIDKey).(string)
 }

@@ -16,9 +16,10 @@ type EventDetailedView struct {
 	EventName    string    `json:"eventName"`
 	CreatedAt    time.Time `json:"createdAt"`
 	Details      string    `json:"details"`
+	IsRegistered bool      `json:"isRegistered"`
 }
 
-func ToDetailedEventView(event *sqlc.Event) *EventDetailedView {
+func ToDetailedEventView(event *sqlc.GetEventByIdRow) *EventDetailedView {
 	return &EventDetailedView{
 		ID:           event.ID,
 		Organiser:    event.Organiser.String,
@@ -29,5 +30,6 @@ func ToDetailedEventView(event *sqlc.Event) *EventDetailedView {
 		EventName:    event.EventName,
 		CreatedAt:    event.CreatedAt.Time,
 		Details:      event.Details.String,
+		IsRegistered: event.IsRegistered,
 	}
 }

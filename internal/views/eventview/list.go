@@ -16,7 +16,7 @@ type EventListView struct {
 	EventName    string    `json:"eventName"`
 }
 
-func ToEventListView(events *[]sqlc.ListEventsRow) *[]EventListView {
+func ToEventListView(events *[]sqlc.ListEventsWithUserRegistrationRow) *[]EventListView {
 	list := make([]EventListView, len(*events))
 	for i, event := range *events {
 		view := EventListView{

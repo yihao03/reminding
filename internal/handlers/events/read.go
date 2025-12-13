@@ -9,6 +9,7 @@ import (
 	"github.com/yihao03/reminding/apperrors"
 	"github.com/yihao03/reminding/internal/api"
 	"github.com/yihao03/reminding/internal/database/sqlc"
+	"github.com/yihao03/reminding/internal/router/middleware"
 	"github.com/yihao03/reminding/internal/views/eventview"
 )
 
@@ -27,10 +28,16 @@ func HandleReadEvents(w http.ResponseWriter, r *http.Request, queries *sqlc.Quer
 		return nil
 	}
 
-	event, err := queries.GetEventById(r.Context(), int32(intID))
+	uid := middleware.GetUserIDFromContext(r.Context())
+
+	params := sqlc.GetEventByIdParams{
+		ID:      int32(intID),
+		UserUid: uid,
+	}
+
+	event, err := queries.GetEventById(r.Context(), params)
 	if err != nil {
-		api.WriteError(http.StatusInternalServerError, apperrors.NewInternalError(err, "failed to get event by id"), w, r.Context())
-		return nil
+		return apperrors.NewInternalError(err, "failed to get event by id")
 	}
 
 	eventView := eventview.ToDetailedEventView(&event)
