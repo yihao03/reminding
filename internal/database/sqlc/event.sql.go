@@ -12,18 +12,18 @@ import (
 )
 
 const getEventById = `-- name: GetEventById :one
-SELECT 
+SELECT
     e.id, e.created_at, e.updated_at, e.organiser, e.is_online, e.location_name, e.start_time, e.end_time, e.details, e.event_name,
     (er.user_id IS NOT NULL)::boolean AS is_registered
 FROM events AS e
 LEFT JOIN event_registrations AS er
-    ON e.id = er.event_id AND er.user_id = $2
+    ON e.id = er.event_id AND er.user_uid = $2
 WHERE e.id = $1
 `
 
 type GetEventByIdParams struct {
-	ID     int32
-	UserID int32
+	ID      int32
+	UserUid string
 }
 
 type GetEventByIdRow struct {
@@ -41,7 +41,7 @@ type GetEventByIdRow struct {
 }
 
 func (q *Queries) GetEventById(ctx context.Context, arg GetEventByIdParams) (GetEventByIdRow, error) {
-	row := q.db.QueryRow(ctx, getEventById, arg.ID, arg.UserID)
+	row := q.db.QueryRow(ctx, getEventById, arg.ID, arg.UserUid)
 	var i GetEventByIdRow
 	err := row.Scan(
 		&i.ID,
@@ -121,7 +121,7 @@ SELECT
     (er.user_id IS NOT NULL)::boolean AS is_registered
 FROM events AS e
 LEFT JOIN event_registrations AS er
-    ON e.id = er.event_id AND er.user_id = $1
+    ON e.id = er.event_id AND er.user_uid = $1
 `
 
 type ListEventsWithUserRegistrationRow struct {
@@ -135,8 +135,8 @@ type ListEventsWithUserRegistrationRow struct {
 	IsRegistered bool
 }
 
-func (q *Queries) ListEventsWithUserRegistration(ctx context.Context, userID int32) ([]ListEventsWithUserRegistrationRow, error) {
-	rows, err := q.db.Query(ctx, listEventsWithUserRegistration, userID)
+func (q *Queries) ListEventsWithUserRegistration(ctx context.Context, userUid string) ([]ListEventsWithUserRegistrationRow, error) {
+	rows, err := q.db.Query(ctx, listEventsWithUserRegistration, userUid)
 	if err != nil {
 		return nil, err
 	}
@@ -162,4 +162,27 @@ func (q *Queries) ListEventsWithUserRegistration(ctx context.Context, userID int
 		return nil, err
 	}
 	return items, nil
+}
+
+const registerEvent = `-- name: RegisterEvent :one
+INSERT INTO event_registrations (user_uid, event_id)
+VALUES ($1, $2)
+RETURNING id, event_id, user_uid, registration_date
+`
+
+type RegisterEventParams struct {
+	UserUid string
+	EventID int32
+}
+
+func (q *Queries) RegisterEvent(ctx context.Context, arg RegisterEventParams) (EventRegistration, error) {
+	row := q.db.QueryRow(ctx, registerEvent, arg.UserUid, arg.EventID)
+	var i EventRegistration
+	err := row.Scan(
+		&i.ID,
+		&i.EventID,
+		&i.UserUid,
+		&i.RegistrationDate,
+	)
+	return i, err
 }

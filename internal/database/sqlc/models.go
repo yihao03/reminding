@@ -24,7 +24,7 @@ type Event struct {
 type EventRegistration struct {
 	ID               int32
 	EventID          int32
-	UserID           int32
+	UserUid          string
 	RegistrationDate pgtype.Timestamp
 }
 

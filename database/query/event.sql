@@ -21,7 +21,7 @@ SELECT
     (er.user_id IS NOT NULL)::boolean AS is_registered
 FROM events AS e
 LEFT JOIN event_registrations AS er
-    ON e.id = er.event_id AND er.user_id = $1;
+    ON e.id = er.event_id AND er.user_uid = $1;
 
 -- name: GetEventById :one
 SELECT
@@ -29,5 +29,10 @@ SELECT
     (er.user_id IS NOT NULL)::boolean AS is_registered
 FROM events AS e
 LEFT JOIN event_registrations AS er
-    ON e.id = er.event_id AND er.user_id = $2
+    ON e.id = er.event_id AND er.user_uid = $2
 WHERE e.id = $1;
+
+-- name: RegisterEvent :one
+INSERT INTO event_registrations (user_uid, event_id)
+VALUES ($1, $2)
+RETURNING *;
