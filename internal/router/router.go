@@ -10,23 +10,25 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/yihao03/reminding/internal/api"
 	"github.com/yihao03/reminding/internal/database/sqlc"
+	appmiddleware "github.com/yihao03/reminding/internal/router/middleware"
 	"github.com/yihao03/reminding/internal/router/routes"
 )
 
 func Setup(queries *sqlc.Queries, app *firebase.App) *chi.Mux {
 	r := chi.NewRouter()
 
-	SetupMiddleware(r)
+	SetupMiddleware(r, app)
 	SetupRoutes(r, queries, app)
 	return r
 }
 
-func SetupMiddleware(r *chi.Mux) {
+func SetupMiddleware(r *chi.Mux, app *firebase.App) {
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(60 * time.Second))
+	r.Use(appmiddleware.GetAuthMiddleware(app))
 }
 
 func SetupRoutes(r *chi.Mux, queries *sqlc.Queries, app *firebase.App) {
