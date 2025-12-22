@@ -28,7 +28,7 @@ func GetAuthMiddleware(app *firebase.App) func(http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")
 			if authHeader == "" {
-				api.WriteError(http.StatusUnauthorized, apperrors.Wrap(nil, ErrUnauthorized), w, r.Context())
+				api.WriteError(http.StatusUnauthorized, apperrors.Wrap(nil, ErrUnauthorized+": Missing Authorization token"), w, r.Context())
 				return
 			}
 
