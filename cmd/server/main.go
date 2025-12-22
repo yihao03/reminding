@@ -51,5 +51,7 @@ func getCorsConfig() *cors.Cors {
 	return cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:8081"},
 		AllowCredentials: true,
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Authorization", "Content-Type"},
 	})
 }
