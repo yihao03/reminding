@@ -14,7 +14,7 @@ import (
 const getEventById = `-- name: GetEventById :one
 SELECT
     e.id, e.created_at, e.updated_at, e.organiser, e.is_online, e.location_name, e.start_time, e.end_time, e.details, e.event_name,
-    (er.user_id IS NOT NULL)::boolean AS is_registered
+    (er.user_uid IS NOT NULL)::boolean AS is_registered
 FROM events AS e
 LEFT JOIN event_registrations AS er
     ON e.id = er.event_id AND er.user_uid = $2
@@ -118,7 +118,7 @@ SELECT
     e.start_time,
     e.end_time,
     e.event_name,
-    (er.user_id IS NOT NULL)::boolean AS is_registered
+    (er.user_uid IS NOT NULL)::boolean AS is_registered
 FROM events AS e
 LEFT JOIN event_registrations AS er
     ON e.id = er.event_id AND er.user_uid = $1
