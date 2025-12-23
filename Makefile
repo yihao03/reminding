@@ -23,3 +23,9 @@ seed:
 
 unseed:
 	@goose postgres "$(DATABASE_URL)" -dir ./database/seed -no-versioning down
+
+dropDB:
+	@dropdb remindme
+
+createDB:
+	@createdb remindme
