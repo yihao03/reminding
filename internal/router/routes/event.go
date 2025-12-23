@@ -12,5 +12,6 @@ func SetupEventRoutes(queries *database.Queries, app *firebase.App) func(chi.Rou
 	return func(r chi.Router) {
 		r.Get("/list", api.HTTPHandler(queries, app, events.HandleGetEvents))
 		r.Get("/{id}", api.HTTPHandler(queries, app, events.HandleReadEvents))
+		r.Post("/{id}/register", api.HTTPHandler(queries, app, events.HandleRegisterEvents))
 	}
 }
