@@ -3,9 +3,9 @@ package userview
 import database "github.com/yihao03/reminding/internal/database/sqlc"
 
 type CreateUserView struct {
-	FirebaseUID string `json:"firebase_uid" validate:"required"`
+	FirebaseUID string `json:"FirebaseUID" validate:"required"`
 	Email       string `json:"email" validate:"required,email"`
-	Name        string `json:"name" validate:"required,max=100"`
+	Name        string `json:"UserName" validate:"required,max=100"`
 }
 
 func (v *CreateUserView) ToCreateUserParams() *database.CreateUserParams {
