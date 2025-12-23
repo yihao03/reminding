@@ -15,10 +15,10 @@ func Wrap(originalError error, errorMessage string) *AppError {
 	}
 }
 
-func New(originalError error) *AppError {
+func New(message string) *AppError {
 	return &AppError{
 		OriginalError: nil,
-		ErrorMessage:  originalError.Error(),
+		ErrorMessage:  message,
 	}
 }
 
