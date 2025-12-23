@@ -5,7 +5,8 @@ CREATE TABLE event_registrations (
     id                SERIAL       PRIMARY KEY,
     event_id          INT          NOT NULL REFERENCES events (id),
     user_uid          VARCHAR(255) NOT NULL REFERENCES users (firebase_uid),
-    registration_date TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
+    registration_date TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (event_id, user_uid)
 );
 -- +goose StatementEnd
 
