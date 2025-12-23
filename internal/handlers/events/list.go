@@ -17,12 +17,14 @@ var (
 )
 
 func HandleGetEvents(w http.ResponseWriter, r *http.Request, queries *sqlc.Queries, app *firebase.App) error {
-	uid := middleware.GetUserIDFromContext(r.Context())
+	uid, ok := middleware.GetUserIDFromContext(r.Context())
+	if !ok {
+		api.WriteError(http.StatusBadRequest, apperrors.New("User ID not found in context"), w, r.Context())
+	}
 
 	events, err := queries.ListEventsWithUserRegistration(r.Context(), uid)
 	if err != nil {
-		api.WriteError(http.StatusInternalServerError, apperrors.Wrap(err, ErrGetEvents), w, r.Context())
-		return nil
+		return apperrors.Wrap(err, ErrGetEvents)
 	}
 
 	view := eventview.ToEventListView(&events)
