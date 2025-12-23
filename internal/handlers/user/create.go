@@ -25,8 +25,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request, queries *sqlc.Queries, a
 
 	user, err := queries.CreateUser(r.Context(), *req.ToCreateUserParams())
 	if err != nil {
-		api.WriteError(http.StatusInternalServerError, apperrors.Wrap(err, ErrCreateUser), w, r.Context())
-		return nil
+		return apperrors.Wrap(err, ErrCreateUser)
 	}
 
 	api.WriteResponse(user, w, "User created successfully")
