@@ -2,16 +2,15 @@
 package router
 
 import (
-	"net/http"
 	"time"
 
 	firebase "firebase.google.com/go/v4"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
-	"github.com/yihao03/reminding/internal/api"
 	"github.com/yihao03/reminding/internal/database/sqlc"
 	appmiddleware "github.com/yihao03/reminding/internal/router/middleware"
 	"github.com/yihao03/reminding/internal/router/routes"
+	"github.com/yihao03/reminding/internal/router/routes/adminroutes"
 )
 
 func Setup(queries *sqlc.Queries, app *firebase.App) *chi.Mux {
@@ -33,13 +32,15 @@ func SetupMiddleware(r *chi.Mux, app *firebase.App) {
 
 func SetupRoutes(r *chi.Mux, queries *sqlc.Queries, app *firebase.App) {
 	r.Route("/api", func(r chi.Router) {
-		r.Get("/", api.HTTPHandler(queries, app,
-			func(w http.ResponseWriter, r *http.Request, queries *sqlc.Queries, app *firebase.App) error {
-				api.WriteResponse("Didn't forget to run", w)
-				return nil
-			}))
+		SetupAdminRoutes(r, queries, app)
 
 		r.Route("/user", routes.SetupUserRoutes(queries, app))
 		r.Route("/events", routes.SetupEventRoutes(queries, app))
+	})
+}
+
+func SetupAdminRoutes(r chi.Router, queries *sqlc.Queries, app *firebase.App) {
+	r.Route("/admin", func(r chi.Router) {
+		r.Route("/events", adminroutes.SetupEventRoutes(queries, app))
 	})
 }
