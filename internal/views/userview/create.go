@@ -12,6 +12,6 @@ func (v *CreateUserView) ToCreateUserParams() *database.CreateUserParams {
 	return &database.CreateUserParams{
 		FirebaseUid: v.FirebaseUID,
 		Email:       v.Email,
-		UserName:    v.Name,
+		DisplayName: v.Name,
 	}
 }

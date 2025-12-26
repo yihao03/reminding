@@ -19,7 +19,7 @@ type EventDetailedView struct {
 	IsRegistered bool      `json:"isRegistered"`
 }
 
-func ToDetailedEventView(event *sqlc.GetEventByIdRow) *EventDetailedView {
+func ToDetailedEventView(event *sqlc.GetEventByIdAndUidRow) *EventDetailedView {
 	return &EventDetailedView{
 		ID:           event.ID,
 		Organiser:    event.Organiser.String,
