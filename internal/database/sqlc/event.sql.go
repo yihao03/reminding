@@ -131,6 +131,7 @@ SELECT
     end_time,
     event_name
 FROM events
+ORDER BY start_time DESC
 `
 
 type ListEventsRow struct {
@@ -184,6 +185,7 @@ SELECT
 FROM events AS e
 LEFT JOIN event_registrations AS er
     ON e.id = er.event_id AND er.user_uid = $1
+ORDER BY e.start_time DESC
 `
 
 type ListEventsWithUserRegistrationRow struct {
