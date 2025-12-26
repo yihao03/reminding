@@ -36,15 +36,43 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
-const getUser = `-- name: GetUser :one
+const createUserIfAbsent = `-- name: CreateUserIfAbsent :one
+INSERT INTO users (firebase_uid, display_name, email)
+VALUES ($1, $2, $3)
+ON CONFLICT (firebase_uid) DO NOTHING
+RETURNING id, firebase_uid, created_at, display_name, email, updated_at, is_admin
+`
+
+type CreateUserIfAbsentParams struct {
+	FirebaseUid string
+	DisplayName string
+	Email       string
+}
+
+func (q *Queries) CreateUserIfAbsent(ctx context.Context, arg CreateUserIfAbsentParams) (User, error) {
+	row := q.db.QueryRow(ctx, createUserIfAbsent, arg.FirebaseUid, arg.DisplayName, arg.Email)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.FirebaseUid,
+		&i.CreatedAt,
+		&i.DisplayName,
+		&i.Email,
+		&i.UpdatedAt,
+		&i.IsAdmin,
+	)
+	return i, err
+}
+
+const getUserByUid = `-- name: GetUserByUid :one
 SELECT id, firebase_uid, created_at, display_name, email, updated_at, is_admin FROM users
-WHERE id = $1
+WHERE firebase_uid = $1
 ORDER BY created_at DESC
 LIMIT 1
 `
 
-func (q *Queries) GetUser(ctx context.Context, id int32) (User, error) {
-	row := q.db.QueryRow(ctx, getUser, id)
+func (q *Queries) GetUserByUid(ctx context.Context, firebaseUid string) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByUid, firebaseUid)
 	var i User
 	err := row.Scan(
 		&i.ID,
