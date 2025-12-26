@@ -20,6 +20,7 @@ func HandleGetEvents(w http.ResponseWriter, r *http.Request, queries *sqlc.Queri
 	uid, ok := middleware.GetUserIDFromContext(r.Context())
 	if !ok {
 		api.WriteError(http.StatusBadRequest, apperrors.New("User ID not found in context"), w, r.Context())
+		return nil
 	}
 
 	events, err := queries.ListEventsWithUserRegistration(r.Context(), uid)

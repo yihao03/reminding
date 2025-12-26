@@ -34,12 +34,12 @@ func HandleReadEvents(w http.ResponseWriter, r *http.Request, queries *sqlc.Quer
 		return nil
 	}
 
-	params := sqlc.GetEventByIdParams{
+	params := sqlc.GetEventByIdAndUidParams{
 		ID:      int32(intID),
 		UserUid: uid,
 	}
 
-	event, err := queries.GetEventById(r.Context(), params)
+	event, err := queries.GetEventByIdAndUid(r.Context(), params)
 	if err != nil {
 		return apperrors.NewInternalError(err, "failed to get event by id")
 	}
