@@ -21,6 +21,10 @@ type EventAdminView struct {
 }
 
 func ToAdminEventView(event *sqlc.Event, users *[]sqlc.User) *EventAdminView {
+	usersView := make([]userview.UserView, len(*users))
+	for i, user := range *users {
+		usersView[i] = *userview.ToUserView(&user)
+	}
 	return &EventAdminView{
 		ID:           event.ID,
 		Organiser:    event.Organiser.String,
@@ -31,5 +35,6 @@ func ToAdminEventView(event *sqlc.Event, users *[]sqlc.User) *EventAdminView {
 		EventName:    event.EventName,
 		CreatedAt:    event.CreatedAt.Time,
 		Details:      event.Details.String,
+		Users:        usersView,
 	}
 }
