@@ -38,7 +38,7 @@ func GetAuthMiddleware(app *firebase.App) func(http.Handler) http.Handler {
 				return
 			}
 
-			token, err := client.VerifyIDToken(r.Context(), tokenString)
+			token, err := client.VerifyIDTokenAndCheckRevoked(r.Context(), tokenString)
 			if err != nil {
 				api.WriteError(http.StatusUnauthorized, apperrors.Wrap(err, ErrInvalidToken), w, r.Context())
 				return
