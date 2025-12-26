@@ -6,12 +6,11 @@ import (
 	"github.com/yihao03/reminding/internal/api"
 	"github.com/yihao03/reminding/internal/database/sqlc"
 	adminevents "github.com/yihao03/reminding/internal/handlers/admin/events"
-	"github.com/yihao03/reminding/internal/handlers/events"
 )
 
 func SetupEventRoutes(queries *sqlc.Queries, app *firebase.App) func(chi.Router) {
 	return func(r chi.Router) {
-		r.Get("/list", api.HTTPHandler(queries, app, events.HandleGetEvents))
+		r.Get("/list", api.HTTPHandler(queries, app, adminevents.HandleGetEvents))
 		r.Get("/{id}", api.HTTPHandler(queries, app, adminevents.HandleReadEvents))
 	}
 }

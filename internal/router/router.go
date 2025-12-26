@@ -18,6 +18,7 @@ func Setup(queries *sqlc.Queries, app *firebase.App) *chi.Mux {
 
 	SetupMiddleware(r, app)
 	SetupRoutes(r, queries, app)
+	SetupAdminRoutes(r, queries, app)
 	return r
 }
 
@@ -32,15 +33,14 @@ func SetupMiddleware(r *chi.Mux, app *firebase.App) {
 
 func SetupRoutes(r *chi.Mux, queries *sqlc.Queries, app *firebase.App) {
 	r.Route("/api", func(r chi.Router) {
-		SetupAdminRoutes(r, queries, app)
-
 		r.Route("/user", routes.SetupUserRoutes(queries, app))
 		r.Route("/events", routes.SetupEventRoutes(queries, app))
 	})
 }
 
 func SetupAdminRoutes(r chi.Router, queries *sqlc.Queries, app *firebase.App) {
-	r.Route("/admin", func(r chi.Router) {
+	r.Route("/api/admin", func(r chi.Router) {
 		r.Route("/events", adminroutes.SetupEventRoutes(queries, app))
+		r.Route("/auth", adminroutes.SetupAuthRoutes(queries, app))
 	})
 }
