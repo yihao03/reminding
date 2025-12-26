@@ -23,7 +23,7 @@ FROM events AS e
 LEFT JOIN event_registrations AS er
     ON e.id = er.event_id AND er.user_uid = $1;
 
--- name: GetEventById :one
+-- name: GetEventByIdAndUid :one
 SELECT
     e.*,
     (er.user_uid IS NOT NULL)::boolean AS is_registered
@@ -36,3 +36,17 @@ WHERE e.id = $1;
 INSERT INTO event_registrations (user_uid, event_id)
 VALUES ($1, $2)
 RETURNING *;
+
+-- Admin Queries
+-- name: GetEventById :one
+SELECT
+    *
+FROM events
+WHERE id = $1;
+
+-- name: GetEventRegisteredUsers :many
+SELECT u.*
+FROM event_registrations AS er
+INNER JOIN users AS u
+    ON er.user_uid = u.firebase_uid
+WHERE er.event_id = $1;
