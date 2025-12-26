@@ -8,10 +8,10 @@ type UserView struct {
 	Name        string `json:"username"`
 }
 
-func ToUserView(user sqlc.User) *sqlc.CreateUserParams {
-	return &sqlc.CreateUserParams{
-		FirebaseUid: user.FirebaseUid,
+func ToUserView(user *sqlc.User) *UserView {
+	return &UserView{
+		FirebaseUID: user.FirebaseUid,
 		Email:       user.Email,
-		DisplayName: user.DisplayName,
+		Name:        user.DisplayName,
 	}
 }
