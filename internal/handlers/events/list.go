@@ -28,7 +28,7 @@ func HandleGetEvents(w http.ResponseWriter, r *http.Request, queries *sqlc.Queri
 		return apperrors.Wrap(err, ErrGetEvents)
 	}
 
-	view := eventview.ToEventListView(&events)
+	view := eventview.ToEventListWithUserRegistrationView(&events)
 
 	api.WriteResponse(view, w, SuccessGetEvents)
 	return nil

@@ -16,7 +16,7 @@ type EventListView struct {
 	EventName    string    `json:"eventName"`
 }
 
-func ToEventListView(events *[]sqlc.ListEventsWithUserRegistrationRow) *[]EventListView {
+func ToEventListView(events *[]sqlc.ListEventsRow) *[]EventListView {
 	list := make([]EventListView, len(*events))
 	for i, event := range *events {
 		view := EventListView{
@@ -27,6 +27,35 @@ func ToEventListView(events *[]sqlc.ListEventsWithUserRegistrationRow) *[]EventL
 			StartTime:    event.StartTime.Time,
 			EndTime:      event.EndTime.Time,
 			EventName:    event.EventName,
+		}
+		list[i] = view
+	}
+	return &list
+}
+
+type EventListWithUserRegisteredView struct {
+	ID           int32     `json:"id"`
+	Organiser    string    `json:"organiser"`
+	IsOnline     bool      `json:"isOnline"`
+	LocationName string    `json:"locationName"`
+	StartTime    time.Time `json:"startTime"`
+	EndTime      time.Time `json:"endTime"`
+	EventName    string    `json:"eventName"`
+	IsRegistered bool      `json:"isRegistered"`
+}
+
+func ToEventListWithUserRegistrationView(events *[]sqlc.ListEventsWithUserRegistrationRow) *[]EventListWithUserRegisteredView {
+	list := make([]EventListWithUserRegisteredView, len(*events))
+	for i, event := range *events {
+		view := EventListWithUserRegisteredView{
+			ID:           event.ID,
+			Organiser:    event.Organiser.String,
+			IsOnline:     event.IsOnline,
+			LocationName: event.LocationName.String,
+			StartTime:    event.StartTime.Time,
+			EndTime:      event.EndTime.Time,
+			EventName:    event.EventName,
+			IsRegistered: event.IsRegistered,
 		}
 		list[i] = view
 	}
