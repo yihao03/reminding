@@ -13,6 +13,32 @@ import (
 
 const getEventById = `-- name: GetEventById :one
 SELECT
+    id, created_at, updated_at, organiser, is_online, location_name, start_time, end_time, details, event_name
+FROM events
+WHERE id = $1
+`
+
+// Admin Queries
+func (q *Queries) GetEventById(ctx context.Context, id int32) (Event, error) {
+	row := q.db.QueryRow(ctx, getEventById, id)
+	var i Event
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Organiser,
+		&i.IsOnline,
+		&i.LocationName,
+		&i.StartTime,
+		&i.EndTime,
+		&i.Details,
+		&i.EventName,
+	)
+	return i, err
+}
+
+const getEventByIdAndUid = `-- name: GetEventByIdAndUid :one
+SELECT
     e.id, e.created_at, e.updated_at, e.organiser, e.is_online, e.location_name, e.start_time, e.end_time, e.details, e.event_name,
     (er.user_uid IS NOT NULL)::boolean AS is_registered
 FROM events AS e
@@ -21,12 +47,12 @@ LEFT JOIN event_registrations AS er
 WHERE e.id = $1
 `
 
-type GetEventByIdParams struct {
+type GetEventByIdAndUidParams struct {
 	ID      int32
 	UserUid string
 }
 
-type GetEventByIdRow struct {
+type GetEventByIdAndUidRow struct {
 	ID           int32
 	CreatedAt    pgtype.Timestamptz
 	UpdatedAt    pgtype.Timestamptz
@@ -40,9 +66,9 @@ type GetEventByIdRow struct {
 	IsRegistered bool
 }
 
-func (q *Queries) GetEventById(ctx context.Context, arg GetEventByIdParams) (GetEventByIdRow, error) {
-	row := q.db.QueryRow(ctx, getEventById, arg.ID, arg.UserUid)
-	var i GetEventByIdRow
+func (q *Queries) GetEventByIdAndUid(ctx context.Context, arg GetEventByIdAndUidParams) (GetEventByIdAndUidRow, error) {
+	row := q.db.QueryRow(ctx, getEventByIdAndUid, arg.ID, arg.UserUid)
+	var i GetEventByIdAndUidRow
 	err := row.Scan(
 		&i.ID,
 		&i.CreatedAt,
@@ -57,6 +83,42 @@ func (q *Queries) GetEventById(ctx context.Context, arg GetEventByIdParams) (Get
 		&i.IsRegistered,
 	)
 	return i, err
+}
+
+const getEventRegisteredUsers = `-- name: GetEventRegisteredUsers :many
+SELECT u.id, u.firebase_uid, u.created_at, u.display_name, u.email, u.updated_at, u.is_admin
+FROM event_registrations AS er
+INNER JOIN users AS u
+    ON er.user_uid = u.firebase_uid
+WHERE er.event_id = $1
+`
+
+func (q *Queries) GetEventRegisteredUsers(ctx context.Context, eventID int32) ([]User, error) {
+	rows, err := q.db.Query(ctx, getEventRegisteredUsers, eventID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.FirebaseUid,
+			&i.CreatedAt,
+			&i.DisplayName,
+			&i.Email,
+			&i.UpdatedAt,
+			&i.IsAdmin,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listEvents = `-- name: ListEvents :many

@@ -32,7 +32,7 @@ type User struct {
 	ID          int32
 	FirebaseUid string
 	CreatedAt   pgtype.Timestamptz
-	UserName    string
+	DisplayName string
 	Email       string
 	UpdatedAt   pgtype.Timestamptz
 	IsAdmin     bool

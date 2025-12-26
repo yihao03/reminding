@@ -10,25 +10,25 @@ import (
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (firebase_uid, user_name, email)
+INSERT INTO users (firebase_uid, display_name, email)
 VALUES ($1, $2, $3)
-RETURNING id, firebase_uid, created_at, user_name, email, updated_at, is_admin
+RETURNING id, firebase_uid, created_at, display_name, email, updated_at, is_admin
 `
 
 type CreateUserParams struct {
 	FirebaseUid string
-	UserName    string
+	DisplayName string
 	Email       string
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRow(ctx, createUser, arg.FirebaseUid, arg.UserName, arg.Email)
+	row := q.db.QueryRow(ctx, createUser, arg.FirebaseUid, arg.DisplayName, arg.Email)
 	var i User
 	err := row.Scan(
 		&i.ID,
 		&i.FirebaseUid,
 		&i.CreatedAt,
-		&i.UserName,
+		&i.DisplayName,
 		&i.Email,
 		&i.UpdatedAt,
 		&i.IsAdmin,
@@ -37,7 +37,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, firebase_uid, created_at, user_name, email, updated_at, is_admin FROM users
+SELECT id, firebase_uid, created_at, display_name, email, updated_at, is_admin FROM users
 WHERE id = $1
 ORDER BY created_at DESC
 LIMIT 1
@@ -50,7 +50,7 @@ func (q *Queries) GetUser(ctx context.Context, id int32) (User, error) {
 		&i.ID,
 		&i.FirebaseUid,
 		&i.CreatedAt,
-		&i.UserName,
+		&i.DisplayName,
 		&i.Email,
 		&i.UpdatedAt,
 		&i.IsAdmin,
