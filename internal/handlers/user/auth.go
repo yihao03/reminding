@@ -1,9 +1,11 @@
 package user
 
 import (
+	"errors"
 	"net/http"
 
 	firebase "firebase.google.com/go/v4"
+	"github.com/jackc/pgx/v5"
 	"github.com/yihao03/reminding/apperrors"
 	"github.com/yihao03/reminding/internal/api"
 	"github.com/yihao03/reminding/internal/database/sqlc"
@@ -16,7 +18,7 @@ const (
 	ErrInvalidToken  = "Token invalid"
 )
 
-func AuthorizeUser(w http.ResponseWriter, r *http.Request, queries *sqlc.Queries, app *firebase.App) error {
+func HandleAuthorizeUser(w http.ResponseWriter, r *http.Request, queries *sqlc.Queries, app *firebase.App) error {
 	var authview userview.AuthView
 	if err := api.Decode(r, &authview); err != nil {
 		return apperrors.NewInternalError(err, ErrParseAuthView)
@@ -27,21 +29,25 @@ func AuthorizeUser(w http.ResponseWriter, r *http.Request, queries *sqlc.Queries
 		return apperrors.NewInternalError(err, ErrGetAuthClient)
 	}
 
-	_, err = auth.VerifyIDToken(r.Context(), authview.UserToken)
+	token, err := auth.VerifyIDToken(r.Context(), authview.UserToken)
 	if err != nil {
 		api.WriteError(http.StatusUnauthorized, apperrors.Wrap(err, ErrInvalidToken), w, r.Context())
 		return nil
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "session",
-		Value:    authview.UserToken,
-		Path:     "/",
-		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
-		MaxAge:   60 * 60 * 24 * 5, // 5 days
-	})
+	userParams := sqlc.CreateUserIfAbsentParams{
+		FirebaseUid: token.UID,
+		DisplayName: authview.User.Name,
+		Email:       authview.User.Email,
+	}
 
+	_, err = queries.CreateUserIfAbsent(r.Context(), userParams)
+	if err != nil {
+		if !errors.Is(err, pgx.ErrNoRows) {
+			return apperrors.Wrap(err, "Failed to create user if absent")
+		}
+	}
+
+	api.WriteResponse(map[string]string{"status": "authorized"}, w)
 	return nil
 }
