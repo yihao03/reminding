@@ -10,7 +10,7 @@ SELECT
 FROM events
 ORDER BY start_time DESC;
 
--- name: ListEventsWithUserRegistration :many
+-- name: ListEventsWithRegistrationStatus :many
 SELECT
     e.id,
     e.organiser,
@@ -53,7 +53,6 @@ INNER JOIN users AS u
     ON er.user_uid = u.firebase_uid
 WHERE er.event_id = $1;
 
-
 -- name: CreateEvent :one
 INSERT INTO events (
     event_name,
@@ -65,5 +64,22 @@ INSERT INTO events (
     details
 ) VALUES (
     $1, $2, $3, $4, $5, $6, $7
-) 
+)
 RETURNING *;
+
+-- name: ListEventsAdmin :many
+SELECT
+    e.id,
+    e.organiser,
+    e.is_online,
+    e.location_name,
+    e.start_time,
+    e.end_time,
+    e.details,
+    e.event_name,
+    COUNT(er.user_uid) AS user_count
+FROM events AS e
+LEFT JOIN event_registrations AS er
+    ON e.id = er.event_id
+GROUP BY e.id
+ORDER BY e.start_time DESC;

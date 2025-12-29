@@ -15,13 +15,13 @@ const (
 	SuccessGetEvents = "Events retrieved successfully"
 )
 
-func HandleGetEvents(w http.ResponseWriter, r *http.Request, queries *sqlc.Queries, app *firebase.App) error {
-	events, err := queries.ListEvents(r.Context())
+func HandleListEvents(w http.ResponseWriter, r *http.Request, queries *sqlc.Queries, app *firebase.App) error {
+	events, err := queries.ListEventsAdmin(r.Context())
 	if err != nil {
 		return apperrors.Wrap(err, ErrGetEvents)
 	}
 
-	view := eventview.ToEventListView(&events)
+	view := eventview.ToEventListAdminView(&events)
 
 	api.WriteResponse(view, w, SuccessGetEvents)
 	return nil

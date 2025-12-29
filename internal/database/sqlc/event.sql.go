@@ -22,7 +22,7 @@ INSERT INTO events (
     details
 ) VALUES (
     $1, $2, $3, $4, $5, $6, $7
-) 
+)
 RETURNING id, created_at, updated_at, organiser, is_online, location_name, start_time, end_time, details, event_name
 `
 
@@ -223,7 +223,67 @@ func (q *Queries) ListEvents(ctx context.Context) ([]ListEventsRow, error) {
 	return items, nil
 }
 
-const listEventsWithUserRegistration = `-- name: ListEventsWithUserRegistration :many
+const listEventsAdmin = `-- name: ListEventsAdmin :many
+SELECT
+    e.id,
+    e.organiser,
+    e.is_online,
+    e.location_name,
+    e.start_time,
+    e.end_time,
+    e.details,
+    e.event_name,
+    COUNT(er.user_uid) AS user_count
+FROM events AS e
+LEFT JOIN event_registrations AS er
+    ON e.id = er.event_id
+GROUP BY e.id
+ORDER BY e.start_time DESC
+`
+
+type ListEventsAdminRow struct {
+	ID           int32
+	Organiser    pgtype.Text
+	IsOnline     bool
+	LocationName pgtype.Text
+	StartTime    pgtype.Timestamptz
+	EndTime      pgtype.Timestamptz
+	Details      pgtype.Text
+	EventName    string
+	UserCount    int64
+}
+
+func (q *Queries) ListEventsAdmin(ctx context.Context) ([]ListEventsAdminRow, error) {
+	rows, err := q.db.Query(ctx, listEventsAdmin)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListEventsAdminRow
+	for rows.Next() {
+		var i ListEventsAdminRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Organiser,
+			&i.IsOnline,
+			&i.LocationName,
+			&i.StartTime,
+			&i.EndTime,
+			&i.Details,
+			&i.EventName,
+			&i.UserCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listEventsWithRegistrationStatus = `-- name: ListEventsWithRegistrationStatus :many
 SELECT
     e.id,
     e.organiser,
@@ -239,7 +299,7 @@ LEFT JOIN event_registrations AS er
 ORDER BY e.start_time DESC
 `
 
-type ListEventsWithUserRegistrationRow struct {
+type ListEventsWithRegistrationStatusRow struct {
 	ID           int32
 	Organiser    pgtype.Text
 	IsOnline     bool
@@ -250,15 +310,15 @@ type ListEventsWithUserRegistrationRow struct {
 	IsRegistered bool
 }
 
-func (q *Queries) ListEventsWithUserRegistration(ctx context.Context, userUid string) ([]ListEventsWithUserRegistrationRow, error) {
-	rows, err := q.db.Query(ctx, listEventsWithUserRegistration, userUid)
+func (q *Queries) ListEventsWithRegistrationStatus(ctx context.Context, userUid string) ([]ListEventsWithRegistrationStatusRow, error) {
+	rows, err := q.db.Query(ctx, listEventsWithRegistrationStatus, userUid)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListEventsWithUserRegistrationRow
+	var items []ListEventsWithRegistrationStatusRow
 	for rows.Next() {
-		var i ListEventsWithUserRegistrationRow
+		var i ListEventsWithRegistrationStatusRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Organiser,

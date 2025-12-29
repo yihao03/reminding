@@ -10,7 +10,8 @@ import (
 
 func SetupEventRoutes(queries *sqlc.Queries, app *firebase.App) func(chi.Router) {
 	return func(r chi.Router) {
-		r.Get("/list", api.HTTPHandler(queries, app, adminevents.HandleGetEvents))
+		r.Get("/list", api.HTTPHandler(queries, app, adminevents.HandleListEvents))
 		r.Get("/{id}", api.HTTPHandler(queries, app, adminevents.HandleReadEvents))
+		r.Get("/create", api.HTTPHandler(queries, app, adminevents.HandleCreateEvents))
 	}
 }
