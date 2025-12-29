@@ -52,3 +52,18 @@ FROM event_registrations AS er
 INNER JOIN users AS u
     ON er.user_uid = u.firebase_uid
 WHERE er.event_id = $1;
+
+
+-- name: CreateEvent :one
+INSERT INTO events (
+    event_name,
+    organiser,
+    is_online,
+    location_name,
+    start_time,
+    end_time,
+    details
+) VALUES (
+    $1, $2, $3, $4, $5, $6, $7
+) 
+RETURNING *;

@@ -11,6 +11,57 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const createEvent = `-- name: CreateEvent :one
+INSERT INTO events (
+    event_name,
+    organiser,
+    is_online,
+    location_name,
+    start_time,
+    end_time,
+    details
+) VALUES (
+    $1, $2, $3, $4, $5, $6, $7
+) 
+RETURNING id, created_at, updated_at, organiser, is_online, location_name, start_time, end_time, details, event_name
+`
+
+type CreateEventParams struct {
+	EventName    string
+	Organiser    pgtype.Text
+	IsOnline     bool
+	LocationName pgtype.Text
+	StartTime    pgtype.Timestamptz
+	EndTime      pgtype.Timestamptz
+	Details      pgtype.Text
+}
+
+func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) (Event, error) {
+	row := q.db.QueryRow(ctx, createEvent,
+		arg.EventName,
+		arg.Organiser,
+		arg.IsOnline,
+		arg.LocationName,
+		arg.StartTime,
+		arg.EndTime,
+		arg.Details,
+	)
+	var i Event
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Organiser,
+		&i.IsOnline,
+		&i.LocationName,
+		&i.StartTime,
+		&i.EndTime,
+		&i.Details,
+		&i.EventName,
+	)
+	return i, err
+}
+
 const getEventById = `-- name: GetEventById :one
 SELECT
     id, created_at, updated_at, organiser, is_online, location_name, start_time, end_time, details, event_name
