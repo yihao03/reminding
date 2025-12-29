@@ -49,7 +49,7 @@ func WriteResponse(payload any, w http.ResponseWriter, message ...string) {
 }
 
 func WriteError(code int, err error, w http.ResponseWriter, ctx context.Context) {
-	slog.ErrorContext(ctx, "Error: "+err.Error())
+	slog.ErrorContext(ctx, err.Error())
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 
