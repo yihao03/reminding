@@ -28,11 +28,11 @@ func SetupMiddleware(r *chi.Mux, app *firebase.App) {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(60 * time.Second))
-	r.Use(appmiddleware.GetAuthMiddleware(app))
 }
 
 func SetupRoutes(r *chi.Mux, queries *sqlc.Queries, app *firebase.App) {
 	r.Route("/api", func(r chi.Router) {
+		r.Use(appmiddleware.GetAuthMiddleware(app))
 		r.Route("/user", routes.SetupUserRoutes(queries, app))
 		r.Route("/events", routes.SetupEventRoutes(queries, app))
 	})
@@ -40,7 +40,10 @@ func SetupRoutes(r *chi.Mux, queries *sqlc.Queries, app *firebase.App) {
 
 func SetupAdminRoutes(r chi.Router, queries *sqlc.Queries, app *firebase.App) {
 	r.Route("/api/admin", func(r chi.Router) {
-		r.Route("/events", adminroutes.SetupEventRoutes(queries, app))
 		r.Route("/auth", adminroutes.SetupAuthRoutes(queries, app))
+		r.Route("/", func(r chi.Router) {
+			r.Use(appmiddleware.GetAuthMiddleware(app))
+			r.Route("/events", adminroutes.SetupEventRoutes(queries, app))
+		})
 	})
 }
