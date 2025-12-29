@@ -23,12 +23,12 @@ func HandleGetEvents(w http.ResponseWriter, r *http.Request, queries *sqlc.Queri
 		return nil
 	}
 
-	events, err := queries.ListEventsWithUserRegistration(r.Context(), uid)
+	events, err := queries.ListEventsWithRegistrationStatus(r.Context(), uid)
 	if err != nil {
 		return apperrors.Wrap(err, ErrGetEvents)
 	}
 
-	view := eventview.ToEventListWithUserRegistrationView(&events)
+	view := eventview.ToEventListWithRegistrationStatus(&events)
 
 	api.WriteResponse(view, w, SuccessGetEvents)
 	return nil
