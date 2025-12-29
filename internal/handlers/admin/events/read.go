@@ -1,18 +1,24 @@
 package events
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 
 	firebase "firebase.google.com/go/v4"
 	"github.com/go-chi/chi/v5"
+	"github.com/jackc/pgx/v5"
 	"github.com/yihao03/reminding/apperrors"
 	"github.com/yihao03/reminding/internal/api"
 	"github.com/yihao03/reminding/internal/database/sqlc"
 	"github.com/yihao03/reminding/internal/views/eventview"
 )
 
-var ErrMissingIDParam = "missing id parameter"
+var (
+	ErrMissingIDParam = "missing id parameter"
+	ErrEventNotFound  = "event with id %d not found"
+)
 
 func HandleReadEvents(w http.ResponseWriter, r *http.Request, queries *sqlc.Queries, app *firebase.App) error {
 	id := chi.URLParam(r, "id")
@@ -29,6 +35,10 @@ func HandleReadEvents(w http.ResponseWriter, r *http.Request, queries *sqlc.Quer
 
 	event, err := queries.GetEventById(r.Context(), int32(intID))
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			api.WriteError(http.StatusNotFound, apperrors.New(fmt.Sprintf(ErrEventNotFound, intID)), w, r.Context())
+			return nil
+		}
 		return apperrors.NewInternalError(err, "failed to get event by id")
 	}
 
