@@ -11,7 +11,7 @@ type EventDetailedView struct {
 	Organiser    string    `json:"organiser"`
 	IsOnline     bool      `json:"isOnline"`
 	LocationName string    `json:"locationName"`
-	StartTime    time.Time `json:"startTime"`
+	State       string `json:"state" validate:"oneof='Johor' 'Kedah' 'Kelantan' 'Melaka' 'Negeri Sembilan' 'Pahang' 'Perak' 'Perlis' 'Penang' 'Sabah' 'Sarawak' 'Selangor' 'Terengganu'"`
 	EndTime      time.Time `json:"endTime"`
 	EventName    string    `json:"eventName"`
 	CreatedAt    time.Time `json:"createdAt"`
