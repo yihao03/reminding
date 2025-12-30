@@ -22,3 +22,13 @@ func ToPGTime(t *time.Time) pgtype.Timestamptz {
 		Valid: true,
 	}
 }
+
+func ToPGInt4(i *int32) pgtype.Int4 {
+	if i == nil {
+		return pgtype.Int4{Valid: false}
+	}
+	return pgtype.Int4{
+		Int32: *i,
+		Valid: true,
+	}
+}
