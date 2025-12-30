@@ -1,20 +1,22 @@
 -- +goose Up
 -- +goose StatementBegin
 SELECT 'up SQL query';
-CREATE TYPE states AS ENUM (
+CREATE TYPE STATES AS ENUM (
     'Johor', 'Kedah', 'Kelantan', 'Melaka', 'Negeri Sembilan', 'Pahang',
     'Perak', 'Perlis', 'Penang', 'Sabah', 'Sarawak', 'Selangor', 'Terengganu'
 );
 
-ALTER TABLE users
-ADD COLUMN state states,
-ADD COLUMN age int;
+ALTER TABLE USERS
+ADD COLUMN STATE STATES,
+ADD COLUMN AGE INT;
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
 SELECT 'down SQL query';
-ALTER TABLE users
-DROP COLUMN IF EXISTS state,
-DROP COLUMN IF EXISTS age;
+ALTER TABLE USERS
+DROP COLUMN IF EXISTS STATE,
+DROP COLUMN IF EXISTS AGE;
+
+DROP TYPE IF EXISTS STATES;
 -- +goose StatementEnd
