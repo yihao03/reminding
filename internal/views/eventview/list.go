@@ -11,7 +11,8 @@ type EventListWithRegistrationStatus struct {
 	Organiser    string    `json:"organiser"`
 	IsOnline     bool      `json:"isOnline"`
 	LocationName string    `json:"locationName"`
-	State       string `json:"state" validate:"oneof='Johor' 'Kedah' 'Kelantan' 'Melaka' 'Negeri Sembilan' 'Pahang' 'Perak' 'Perlis' 'Penang' 'Sabah' 'Sarawak' 'Selangor' 'Terengganu'"`
+	State        string    `json:"state" validate:"oneof='Johor' 'Kedah' 'Kelantan' 'Melaka' 'Negeri Sembilan' 'Pahang' 'Perak' 'Perlis' 'Penang' 'Sabah' 'Sarawak' 'Selangor' 'Terengganu'"`
+	StartTime    time.Time `json:"startTime"`
 	EndTime      time.Time `json:"endTime"`
 	EventName    string    `json:"eventName"`
 	IsRegistered bool      `json:"isRegistered"`

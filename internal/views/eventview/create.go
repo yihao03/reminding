@@ -11,6 +11,7 @@ type EventCreateView struct {
 	Organiser    string    `json:"organiser" validate:"required"`
 	IsOnline     bool      `json:"isOnline" validate:"required"`
 	LocationName string    `json:"locationName" validate:"required"`
+	State        string    `json:"state" validate:"oneof='Johor' 'Kedah' 'Kelantan' 'Melaka' 'Negeri Sembilan' 'Pahang' 'Perak' 'Perlis' 'Penang' 'Sabah' 'Sarawak' 'Selangor' 'Terengganu'"`
 	StartTime    time.Time `json:"startTime" validate:"required"`
 	EndTime      time.Time `json:"endTime" validate:"required"`
 	EventName    string    `json:"eventName" validate:"required"`
