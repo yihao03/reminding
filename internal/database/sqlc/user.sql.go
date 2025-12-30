@@ -7,50 +7,33 @@ package sqlc
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (firebase_uid, display_name, email)
-VALUES ($1, $2, $3)
-RETURNING id, firebase_uid, created_at, display_name, email, updated_at, is_admin
+INSERT INTO users (firebase_uid, display_name, email, state, age)
+VALUES ($1, $2, $3, $4, $5)
+ON CONFLICT (firebase_uid) DO NOTHING
+RETURNING id, firebase_uid, created_at, display_name, email, updated_at, is_admin, state, age
 `
 
 type CreateUserParams struct {
 	FirebaseUid string
 	DisplayName string
 	Email       string
+	State       NullStates
+	Age         pgtype.Int4
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRow(ctx, createUser, arg.FirebaseUid, arg.DisplayName, arg.Email)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.FirebaseUid,
-		&i.CreatedAt,
-		&i.DisplayName,
-		&i.Email,
-		&i.UpdatedAt,
-		&i.IsAdmin,
+	row := q.db.QueryRow(ctx, createUser,
+		arg.FirebaseUid,
+		arg.DisplayName,
+		arg.Email,
+		arg.State,
+		arg.Age,
 	)
-	return i, err
-}
-
-const createUserIfAbsent = `-- name: CreateUserIfAbsent :one
-INSERT INTO users (firebase_uid, display_name, email)
-VALUES ($1, $2, $3)
-ON CONFLICT (firebase_uid) DO NOTHING
-RETURNING id, firebase_uid, created_at, display_name, email, updated_at, is_admin
-`
-
-type CreateUserIfAbsentParams struct {
-	FirebaseUid string
-	DisplayName string
-	Email       string
-}
-
-func (q *Queries) CreateUserIfAbsent(ctx context.Context, arg CreateUserIfAbsentParams) (User, error) {
-	row := q.db.QueryRow(ctx, createUserIfAbsent, arg.FirebaseUid, arg.DisplayName, arg.Email)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -60,12 +43,14 @@ func (q *Queries) CreateUserIfAbsent(ctx context.Context, arg CreateUserIfAbsent
 		&i.Email,
 		&i.UpdatedAt,
 		&i.IsAdmin,
+		&i.State,
+		&i.Age,
 	)
 	return i, err
 }
 
 const getUserByUid = `-- name: GetUserByUid :one
-SELECT id, firebase_uid, created_at, display_name, email, updated_at, is_admin FROM users
+SELECT id, firebase_uid, created_at, display_name, email, updated_at, is_admin, state, age FROM users
 WHERE firebase_uid = $1
 ORDER BY created_at DESC
 LIMIT 1
@@ -82,6 +67,8 @@ func (q *Queries) GetUserByUid(ctx context.Context, firebaseUid string) (User, e
 		&i.Email,
 		&i.UpdatedAt,
 		&i.IsAdmin,
+		&i.State,
+		&i.Age,
 	)
 	return i, err
 }

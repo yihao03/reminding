@@ -5,8 +5,64 @@
 package sqlc
 
 import (
+	"database/sql/driver"
+	"fmt"
+
 	"github.com/jackc/pgx/v5/pgtype"
 )
+
+type States string
+
+const (
+	StatesJohor          States = "Johor"
+	StatesKedah          States = "Kedah"
+	StatesKelantan       States = "Kelantan"
+	StatesMelaka         States = "Melaka"
+	StatesNegeriSembilan States = "Negeri Sembilan"
+	StatesPahang         States = "Pahang"
+	StatesPerak          States = "Perak"
+	StatesPerlis         States = "Perlis"
+	StatesPenang         States = "Penang"
+	StatesSabah          States = "Sabah"
+	StatesSarawak        States = "Sarawak"
+	StatesSelangor       States = "Selangor"
+	StatesTerengganu     States = "Terengganu"
+)
+
+func (e *States) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = States(s)
+	case string:
+		*e = States(s)
+	default:
+		return fmt.Errorf("unsupported scan type for States: %T", src)
+	}
+	return nil
+}
+
+type NullStates struct {
+	States States
+	Valid  bool // Valid is true if States is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullStates) Scan(value interface{}) error {
+	if value == nil {
+		ns.States, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.States.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullStates) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.States), nil
+}
 
 type Event struct {
 	ID           int32
@@ -36,4 +92,6 @@ type User struct {
 	Email       string
 	UpdatedAt   pgtype.Timestamptz
 	IsAdmin     bool
+	State       NullStates
+	Age         pgtype.Int4
 }

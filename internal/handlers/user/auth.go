@@ -35,13 +35,13 @@ func HandleAuthorizeUser(w http.ResponseWriter, r *http.Request, queries *sqlc.Q
 		return nil
 	}
 
-	userParams := sqlc.CreateUserIfAbsentParams{
+	userParams := sqlc.CreateUserParams{
 		FirebaseUid: token.UID,
 		DisplayName: authview.User.Name,
 		Email:       authview.User.Email,
 	}
 
-	_, err = queries.CreateUserIfAbsent(r.Context(), userParams)
+	_, err = queries.CreateUser(r.Context(), userParams)
 	if err != nil {
 		if !errors.Is(err, pgx.ErrNoRows) {
 			return apperrors.Wrap(err, "Failed to create user if absent")
