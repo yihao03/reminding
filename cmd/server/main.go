@@ -20,7 +20,6 @@ func main() {
 	slog.Info("Starting server...")
 	if err := godotenv.Load(".env"); err != nil {
 		slog.Error("Error loading .env file", "error", err)
-		panic(err)
 	}
 
 	app, err := firebase.InitFirebase()
