@@ -41,13 +41,15 @@ func HandleAuthorizeUser(w http.ResponseWriter, r *http.Request, queries *sqlc.Q
 		Email:       authview.User.Email,
 	}
 
-	_, err = queries.CreateUser(r.Context(), userParams)
+	user, err := queries.CreateUser(r.Context(), userParams)
 	if err != nil {
 		if !errors.Is(err, pgx.ErrNoRows) {
 			return apperrors.Wrap(err, "Failed to create user if absent")
 		}
 	}
 
-	api.WriteResponse(map[string]string{"status": "authorized"}, w)
+	view := userview.ToUserView(&user)
+
+	api.WriteResponse(view, w)
 	return nil
 }
