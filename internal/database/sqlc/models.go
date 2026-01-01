@@ -65,16 +65,18 @@ func (ns NullStates) Value() (driver.Value, error) {
 }
 
 type Event struct {
-	ID           int32
-	CreatedAt    pgtype.Timestamptz
-	UpdatedAt    pgtype.Timestamptz
-	Organiser    pgtype.Text
-	IsOnline     bool
-	LocationName pgtype.Text
-	StartTime    pgtype.Timestamptz
-	EndTime      pgtype.Timestamptz
-	Details      pgtype.Text
-	EventName    string
+	ID               int32
+	CreatedAt        pgtype.Timestamptz
+	UpdatedAt        pgtype.Timestamptz
+	Organiser        pgtype.Text
+	IsOnline         bool
+	LocationName     pgtype.Text
+	StartTime        pgtype.Timestamptz
+	EndTime          pgtype.Timestamptz
+	Details          pgtype.Text
+	EventName        string
+	State            NullStates
+	RegistrationLink pgtype.Text
 }
 
 type EventRegistration struct {

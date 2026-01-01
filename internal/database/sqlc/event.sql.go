@@ -19,21 +19,23 @@ INSERT INTO events (
     location_name,
     start_time,
     end_time,
+    registration_link,
     details
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7
+    $1, $2, $3, $4, $5, $6, $7, $8
 )
-RETURNING id, created_at, updated_at, organiser, is_online, location_name, start_time, end_time, details, event_name
+RETURNING id, created_at, updated_at, organiser, is_online, location_name, start_time, end_time, details, event_name, state, registration_link
 `
 
 type CreateEventParams struct {
-	EventName    string
-	Organiser    pgtype.Text
-	IsOnline     bool
-	LocationName pgtype.Text
-	StartTime    pgtype.Timestamptz
-	EndTime      pgtype.Timestamptz
-	Details      pgtype.Text
+	EventName        string
+	Organiser        pgtype.Text
+	IsOnline         bool
+	LocationName     pgtype.Text
+	StartTime        pgtype.Timestamptz
+	EndTime          pgtype.Timestamptz
+	RegistrationLink pgtype.Text
+	Details          pgtype.Text
 }
 
 func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) (Event, error) {
@@ -44,6 +46,7 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) (Event
 		arg.LocationName,
 		arg.StartTime,
 		arg.EndTime,
+		arg.RegistrationLink,
 		arg.Details,
 	)
 	var i Event
@@ -58,13 +61,15 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) (Event
 		&i.EndTime,
 		&i.Details,
 		&i.EventName,
+		&i.State,
+		&i.RegistrationLink,
 	)
 	return i, err
 }
 
 const getEventById = `-- name: GetEventById :one
 SELECT
-    id, created_at, updated_at, organiser, is_online, location_name, start_time, end_time, details, event_name
+    id, created_at, updated_at, organiser, is_online, location_name, start_time, end_time, details, event_name, state, registration_link
 FROM events
 WHERE id = $1
 `
@@ -84,13 +89,15 @@ func (q *Queries) GetEventById(ctx context.Context, id int32) (Event, error) {
 		&i.EndTime,
 		&i.Details,
 		&i.EventName,
+		&i.State,
+		&i.RegistrationLink,
 	)
 	return i, err
 }
 
 const getEventByIdAndUid = `-- name: GetEventByIdAndUid :one
 SELECT
-    e.id, e.created_at, e.updated_at, e.organiser, e.is_online, e.location_name, e.start_time, e.end_time, e.details, e.event_name,
+    e.id, e.created_at, e.updated_at, e.organiser, e.is_online, e.location_name, e.start_time, e.end_time, e.details, e.event_name, e.state, e.registration_link,
     (er.user_uid IS NOT NULL)::boolean AS is_registered
 FROM events AS e
 LEFT JOIN event_registrations AS er
@@ -104,17 +111,19 @@ type GetEventByIdAndUidParams struct {
 }
 
 type GetEventByIdAndUidRow struct {
-	ID           int32
-	CreatedAt    pgtype.Timestamptz
-	UpdatedAt    pgtype.Timestamptz
-	Organiser    pgtype.Text
-	IsOnline     bool
-	LocationName pgtype.Text
-	StartTime    pgtype.Timestamptz
-	EndTime      pgtype.Timestamptz
-	Details      pgtype.Text
-	EventName    string
-	IsRegistered bool
+	ID               int32
+	CreatedAt        pgtype.Timestamptz
+	UpdatedAt        pgtype.Timestamptz
+	Organiser        pgtype.Text
+	IsOnline         bool
+	LocationName     pgtype.Text
+	StartTime        pgtype.Timestamptz
+	EndTime          pgtype.Timestamptz
+	Details          pgtype.Text
+	EventName        string
+	State            NullStates
+	RegistrationLink pgtype.Text
+	IsRegistered     bool
 }
 
 func (q *Queries) GetEventByIdAndUid(ctx context.Context, arg GetEventByIdAndUidParams) (GetEventByIdAndUidRow, error) {
@@ -131,6 +140,8 @@ func (q *Queries) GetEventByIdAndUid(ctx context.Context, arg GetEventByIdAndUid
 		&i.EndTime,
 		&i.Details,
 		&i.EventName,
+		&i.State,
+		&i.RegistrationLink,
 		&i.IsRegistered,
 	)
 	return i, err
@@ -184,7 +195,7 @@ SELECT
     end_time,
     event_name
 FROM events
-ORDER BY start_time DESC
+ORDER BY start_time
 `
 
 type ListEventsRow struct {
@@ -240,7 +251,7 @@ FROM events AS e
 LEFT JOIN event_registrations AS er
     ON e.id = er.event_id
 GROUP BY e.id
-ORDER BY e.start_time DESC
+ORDER BY e.start_time
 `
 
 type ListEventsAdminRow struct {
@@ -285,12 +296,13 @@ func (q *Queries) ListEventsAdmin(ctx context.Context) ([]ListEventsAdminRow, er
 	return items, nil
 }
 
-const listEventsWithRegistrationStatus = `-- name: ListEventsWithRegistrationStatus :many
+const listEventsUser = `-- name: ListEventsUser :many
 SELECT
     e.id,
     e.organiser,
     e.is_online,
     e.location_name,
+    e.state,
     e.start_time,
     e.end_time,
     e.event_name,
@@ -298,34 +310,38 @@ SELECT
 FROM events AS e
 LEFT JOIN event_registrations AS er
     ON e.id = er.event_id AND er.user_uid = $1
-ORDER BY e.start_time DESC
+WHERE
+    e.start_time >= NOW()
+ORDER BY e.start_time
 `
 
-type ListEventsWithRegistrationStatusRow struct {
+type ListEventsUserRow struct {
 	ID           int32
 	Organiser    pgtype.Text
 	IsOnline     bool
 	LocationName pgtype.Text
+	State        NullStates
 	StartTime    pgtype.Timestamptz
 	EndTime      pgtype.Timestamptz
 	EventName    string
 	IsRegistered bool
 }
 
-func (q *Queries) ListEventsWithRegistrationStatus(ctx context.Context, userUid string) ([]ListEventsWithRegistrationStatusRow, error) {
-	rows, err := q.db.Query(ctx, listEventsWithRegistrationStatus, userUid)
+func (q *Queries) ListEventsUser(ctx context.Context, userUid string) ([]ListEventsUserRow, error) {
+	rows, err := q.db.Query(ctx, listEventsUser, userUid)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListEventsWithRegistrationStatusRow
+	var items []ListEventsUserRow
 	for rows.Next() {
-		var i ListEventsWithRegistrationStatusRow
+		var i ListEventsUserRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Organiser,
 			&i.IsOnline,
 			&i.LocationName,
+			&i.State,
 			&i.StartTime,
 			&i.EndTime,
 			&i.EventName,

@@ -8,14 +8,15 @@ SELECT
     end_time,
     event_name
 FROM events
-ORDER BY start_time DESC;
+ORDER BY start_time;
 
--- name: ListEventsWithRegistrationStatus :many
+-- name: ListEventsUser :many
 SELECT
     e.id,
     e.organiser,
     e.is_online,
     e.location_name,
+    e.state,
     e.start_time,
     e.end_time,
     e.event_name,
@@ -23,7 +24,9 @@ SELECT
 FROM events AS e
 LEFT JOIN event_registrations AS er
     ON e.id = er.event_id AND er.user_uid = $1
-ORDER BY e.start_time DESC;
+WHERE
+    e.start_time >= NOW()
+ORDER BY e.start_time;
 
 -- name: GetEventByIdAndUid :one
 SELECT
@@ -61,9 +64,10 @@ INSERT INTO events (
     location_name,
     start_time,
     end_time,
+    registration_link,
     details
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7
+    $1, $2, $3, $4, $5, $6, $7, $8
 )
 RETURNING *;
 
@@ -82,4 +86,4 @@ FROM events AS e
 LEFT JOIN event_registrations AS er
     ON e.id = er.event_id
 GROUP BY e.id
-ORDER BY e.start_time DESC;
+ORDER BY e.start_time;

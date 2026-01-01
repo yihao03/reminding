@@ -1,7 +1,7 @@
 -- name: GetUserByUid :one
 SELECT * FROM users
 WHERE firebase_uid = $1
-ORDER BY created_at DESC
+ORDER BY created_at
 LIMIT 1;
 
 -- name: CreateUser :one

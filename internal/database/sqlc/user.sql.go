@@ -52,7 +52,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 const getUserByUid = `-- name: GetUserByUid :one
 SELECT id, firebase_uid, created_at, display_name, email, updated_at, is_admin, state, age FROM users
 WHERE firebase_uid = $1
-ORDER BY created_at DESC
+ORDER BY created_at
 LIMIT 1
 `
 
