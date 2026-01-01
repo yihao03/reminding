@@ -5,7 +5,7 @@ ORDER BY created_at
 LIMIT 1;
 
 -- name: CreateUser :one
-INSERT INTO users (firebase_uid, display_name, email, state, age)
+INSERT INTO users (firebase_uid, display_name, email, state, date_of_birth)
 VALUES ($1, $2, $3, $4, $5)
 ON CONFLICT (firebase_uid) DO NOTHING
 RETURNING *;

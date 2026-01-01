@@ -12,10 +12,10 @@ import (
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (firebase_uid, display_name, email, state, age)
+INSERT INTO users (firebase_uid, display_name, email, state, date_of_birth)
 VALUES ($1, $2, $3, $4, $5)
 ON CONFLICT (firebase_uid) DO NOTHING
-RETURNING id, firebase_uid, created_at, display_name, email, updated_at, is_admin, state, age
+RETURNING id, firebase_uid, created_at, display_name, email, updated_at, is_admin, state, date_of_birth
 `
 
 type CreateUserParams struct {
@@ -23,7 +23,7 @@ type CreateUserParams struct {
 	DisplayName string
 	Email       string
 	State       NullStates
-	Age         pgtype.Int4
+	DateOfBirth pgtype.Date
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -32,7 +32,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		arg.DisplayName,
 		arg.Email,
 		arg.State,
-		arg.Age,
+		arg.DateOfBirth,
 	)
 	var i User
 	err := row.Scan(
@@ -44,13 +44,13 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.UpdatedAt,
 		&i.IsAdmin,
 		&i.State,
-		&i.Age,
+		&i.DateOfBirth,
 	)
 	return i, err
 }
 
 const getUserByUid = `-- name: GetUserByUid :one
-SELECT id, firebase_uid, created_at, display_name, email, updated_at, is_admin, state, age FROM users
+SELECT id, firebase_uid, created_at, display_name, email, updated_at, is_admin, state, date_of_birth FROM users
 WHERE firebase_uid = $1
 ORDER BY created_at
 LIMIT 1
@@ -68,7 +68,7 @@ func (q *Queries) GetUserByUid(ctx context.Context, firebaseUid string) (User, e
 		&i.UpdatedAt,
 		&i.IsAdmin,
 		&i.State,
-		&i.Age,
+		&i.DateOfBirth,
 	)
 	return i, err
 }

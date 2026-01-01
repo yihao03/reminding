@@ -95,5 +95,5 @@ type User struct {
 	UpdatedAt   pgtype.Timestamptz
 	IsAdmin     bool
 	State       NullStates
-	Age         pgtype.Int4
+	DateOfBirth pgtype.Date
 }
