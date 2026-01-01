@@ -48,7 +48,18 @@ func main() {
 
 func getCorsConfig() *cors.Cors {
 	return cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:8081"},
+		AllowOriginFunc: func(origin string) bool {
+			// Allow localhost for development
+			if origin == "http://localhost:8081" {
+				return true
+			}
+			// Allow Expo dev URLs matching pattern
+			// This will match: https://yihao03-<project>-<hash>.expo.app
+			if len(origin) > 20 && origin[:15] == "https://yihao03" && origin[len(origin)-9:] == ".expo.app" {
+				return true
+			}
+			return false
+		},
 		AllowCredentials: true,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Authorization", "Content-Type"},
