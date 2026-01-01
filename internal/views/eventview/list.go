@@ -6,7 +6,7 @@ import (
 	"github.com/yihao03/reminding/internal/database/sqlc"
 )
 
-type EventListWithRegistrationStatus struct {
+type UserEventList struct {
 	ID           int32     `json:"id"`
 	Organiser    string    `json:"organiser"`
 	IsOnline     bool      `json:"isOnline"`
@@ -18,14 +18,15 @@ type EventListWithRegistrationStatus struct {
 	IsRegistered bool      `json:"isRegistered"`
 }
 
-func ToEventListWithRegistrationStatus(events *[]sqlc.ListEventsWithRegistrationStatusRow) *[]EventListWithRegistrationStatus {
-	list := make([]EventListWithRegistrationStatus, len(*events))
+func ToUserEventList(events *[]sqlc.ListEventsUserRow) *[]UserEventList {
+	list := make([]UserEventList, len(*events))
 	for i, event := range *events {
-		view := EventListWithRegistrationStatus{
+		view := UserEventList{
 			ID:           event.ID,
 			Organiser:    event.Organiser.String,
 			IsOnline:     event.IsOnline,
 			LocationName: event.LocationName.String,
+			State:        string(event.State.States),
 			StartTime:    event.StartTime.Time,
 			EndTime:      event.EndTime.Time,
 			EventName:    event.EventName,

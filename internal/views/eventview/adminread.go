@@ -8,17 +8,18 @@ import (
 )
 
 type EventAdminView struct {
-	ID           int32               `json:"id"`
-	Organiser    string              `json:"organiser"`
-	IsOnline     bool                `json:"isOnline"`
-	LocationName string              `json:"locationName"`
-	State        string              `json:"state" validate:"oneof='Johor' 'Kedah' 'Kelantan' 'Melaka' 'Negeri Sembilan' 'Pahang' 'Perak' 'Perlis' 'Penang' 'Sabah' 'Sarawak' 'Selangor' 'Terengganu'"`
-	StartTime    time.Time           `json:"startTime"`
-	EndTime      time.Time           `json:"endTime"`
-	EventName    string              `json:"eventName"`
-	CreatedAt    time.Time           `json:"createdAt"`
-	Details      string              `json:"details"`
-	Users        []userview.UserView `json:"users"`
+	ID               int32               `json:"id"`
+	Organiser        string              `json:"organiser"`
+	IsOnline         bool                `json:"isOnline"`
+	LocationName     string              `json:"locationName"`
+	State            string              `json:"state" validate:"oneof='Johor' 'Kedah' 'Kelantan' 'Melaka' 'Negeri Sembilan' 'Pahang' 'Perak' 'Perlis' 'Penang' 'Sabah' 'Sarawak' 'Selangor' 'Terengganu'"`
+	StartTime        time.Time           `json:"startTime"`
+	EndTime          time.Time           `json:"endTime"`
+	EventName        string              `json:"eventName"`
+	CreatedAt        time.Time           `json:"createdAt"`
+	Details          string              `json:"details"`
+	RegistrationLink string              `json:"registrationLink"`
+	Users            []userview.UserView `json:"users"`
 }
 
 func ToAdminEventView(event *sqlc.Event, users *[]sqlc.User) *EventAdminView {
@@ -27,15 +28,16 @@ func ToAdminEventView(event *sqlc.Event, users *[]sqlc.User) *EventAdminView {
 		usersView[i] = *userview.ToUserView(&user)
 	}
 	return &EventAdminView{
-		ID:           event.ID,
-		Organiser:    event.Organiser.String,
-		IsOnline:     event.IsOnline,
-		LocationName: event.LocationName.String,
-		StartTime:    event.StartTime.Time,
-		EndTime:      event.EndTime.Time,
-		EventName:    event.EventName,
-		CreatedAt:    event.CreatedAt.Time,
-		Details:      event.Details.String,
-		Users:        usersView,
+		ID:               event.ID,
+		Organiser:        event.Organiser.String,
+		IsOnline:         event.IsOnline,
+		LocationName:     event.LocationName.String,
+		StartTime:        event.StartTime.Time,
+		EndTime:          event.EndTime.Time,
+		EventName:        event.EventName,
+		CreatedAt:        event.CreatedAt.Time,
+		Details:          event.Details.String,
+		RegistrationLink: event.RegistrationLink.String,
+		Users:            usersView,
 	}
 }
