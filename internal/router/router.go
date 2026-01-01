@@ -32,15 +32,23 @@ func SetupMiddleware(r *chi.Mux, app *firebase.App) {
 
 func SetupRoutes(r *chi.Mux, queries *sqlc.Queries, app *firebase.App) {
 	r.Route("/api", func(r chi.Router) {
-		r.Use(appmiddleware.GetAuthMiddleware(app))
-		r.Route("/user", routes.SetupUserRoutes(queries, app))
-		r.Route("/events", routes.SetupEventRoutes(queries, app))
+		// Unprotected routes
+		r.Route("/auth", routes.SetupAuthRoutes(queries, app))
+
+		// Protected routes
+		r.Route("/", func(r chi.Router) {
+			r.Use(appmiddleware.GetAuthMiddleware(app))
+			r.Route("/events", routes.SetupEventRoutes(queries, app))
+		})
 	})
 }
 
 func SetupAdminRoutes(r chi.Router, queries *sqlc.Queries, app *firebase.App) {
 	r.Route("/api/admin", func(r chi.Router) {
+		// Unprotected routes
 		r.Route("/auth", adminroutes.SetupAuthRoutes(queries, app))
+
+		// Protected routes
 		r.Route("/", func(r chi.Router) {
 			r.Use(appmiddleware.GetAuthMiddleware(app))
 			r.Route("/events", adminroutes.SetupEventRoutes(queries, app))

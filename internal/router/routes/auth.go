@@ -8,8 +8,9 @@ import (
 	"github.com/yihao03/reminding/internal/handlers/user"
 )
 
-func SetupUserRoutes(queries *sqlc.Queries, app *firebase.App) func(chi.Router) {
+func SetupAuthRoutes(queries *sqlc.Queries, app *firebase.App) func(r chi.Router) {
 	return func(r chi.Router) {
+		r.Post("/", api.HTTPHandler(queries, app, user.HandleAuthorizeUser))
 		r.Post("/create", api.HTTPHandler(queries, app, user.CreateUser))
 	}
 }
