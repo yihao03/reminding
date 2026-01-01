@@ -2,91 +2,130 @@
 -- +goose StatementBegin
 
 -- 1. Clean up existing data to ensure a fresh seed
+-- We use CASCADE to handle the foreign key constraints automatically.
 TRUNCATE TABLE event_registrations, events, users RESTART IDENTITY CASCADE;
 
--- 2. Insert Users (Admins, Medical Professionals, and Family Caregivers)
+-- 2. Insert Users
+-- We create a mix of admins (medical professionals) and standard users (family caregivers).
 INSERT INTO users (firebase_uid, display_name, email, is_admin, state, age)
-VALUES 
-    -- Admins / Professionals
-    ('uid_admin_001', 'Dr. Aminah Razak', 'aminah.razak@carebridge.my', true, 'Selangor', 45),
-    ('uid_admin_002', 'Sarah Lee (Social Worker)', 'sarah.lee@carebridge.my', true, 'Penang', 32),
+VALUES
+    -- Admin: A Geriatric Specialist
+    ('uid_admin_sarah', 'Dr. Sarah Lim', 'sarah.lim@healthcare.com', true, 'Selangor', 45),
     
-    -- Family Caregivers
-    ('uid_user_101', 'Ravi Muthusamy', 'ravi.muthu88@gmail.com', false, 'Johor', 38),
-    ('uid_user_102', 'Lim Mei Ling', 'mei.ling.lim@yahoo.com', false, 'Selangor', 52),
-    ('uid_user_103', 'Ahmad Zulkifli', 'ahmad.zul@hotmail.com', false, 'Kelantan', 29),
-    ('uid_user_104', 'Grace O''Connor', 'grace.oc@gmail.com', false, 'Sabah', 61),
-    ('uid_user_105', 'Farid bin Harun', 'farid.h@gmail.com', false, 'Terengganu', 44);
+    -- User: A son caring for his father
+    ('uid_caregiver_ahmad', 'Ahmad Zulkifli', 'ahmad.z@gmail.com', false, 'Johor', 34),
+    
+    -- User: A wife caring for her husband with early-onset
+    ('uid_caregiver_mei', 'Mei Ling', 'mei.ling@yahoo.com', false, 'Penang', 58),
+    
+    -- User: A professional live-in nurse
+    ('uid_nurse_ravi', 'Ravi Chandran', 'ravi.care@nursing.com', false, 'Perak', 29);
 
--- 3. Insert Events (Mix of Online and In-Person with Long-Form Content)
-INSERT INTO events (organiser, is_online, location_name, start_time, end_time, event_name, state, registration_link, details)
+-- 3. Insert Events
+-- Includes a mix of Online and Physical events with long-form, empathetic descriptions.
+INSERT INTO events (
+    event_name, 
+    organiser, 
+    is_online, 
+    location_name, 
+    state, 
+    start_time, 
+    end_time, 
+    registration_link, 
+    details
+)
 VALUES
     (
-        'Alzheimer’s Support Network',
-        true,
-        'Zoom Meeting',
-        NOW() + interval '2 days 10 hours', -- Upcoming in 2 days
-        NOW() + interval '2 days 12 hours',
         'Understanding Sundowning: Strategies for Evening Anxiety',
-        NULL, -- Online, no specific state state
-        'https://zoom.us/j/123456789',
-        E'Sundowning can be one of the most challenging behaviors for caregivers to manage. As the sun begins to set, you may notice your loved one becoming increasingly confused, anxious, or agitated. This webinar is designed to help you understand the biological and environmental triggers behind this phenomenon. We will discuss how lighting, routine adjustments, and dietary changes can significantly reduce the severity of symptoms.\n\nIn this session, Dr. Aminah Razak will share medical insights into the circadian rhythms of dementia patients. We will also open the floor to three experienced caregivers who will share their personal "evening routine" checklists that have brought peace back to their homes. You are not alone in this struggle, and there are practical steps we can take together.\n\nPlease note: This is a safe space for sharing. We will begin with a 45-minute presentation followed by a supportive Q&A session. A recording will be made available to all registered participants if you are unable to attend the full duration due to caregiving duties.'
+        'Alzheimers Disease Foundation Malaysia',
+        true, -- Online
+        'Zoom Webinar',
+        'Selangor', -- Host location
+        NOW() + interval '2 days 18 hours', -- 6:00 PM roughly
+        NOW() + interval '2 days 20 hours',
+        'https://www.google.com',
+        'Many caregivers notice a distinct change in their loved one''s behavior as the late afternoon light begins to fade. This phenomenon, known as "Sundowning," can result in increased confusion, anxiety, aggression, or pacing. It is one of the most exhausting aspects of dementia care because it happens when you, the caregiver, are likely most tired. In this compassionate workshop, Dr. Sarah Lim will explain the biological triggers behind these behavioral shifts and why they occur specifically during transition times of the day.
+
+We will move beyond medical definitions to discuss practical, home-based strategies. Topics will include lighting adjustments to reset circadian rhythms, dietary timing to reduce agitation, and calming sensory activities that can ground your loved one. We understand how isolating these evenings can feel, and we want to equip you with a toolkit to make nights more peaceful for the whole family.
+
+The session will conclude with a 30-minute open Q&A where you can share your specific challenges. Please note that this is a safe, judgment-free space. Whether you are dealing with wandering or emotional outbursts, you are not alone in this journey. Recording will be available for those who cannot attend live.'
     ),
     (
-        'Legal Aid Bureau',
-        true,
-        'Google Meet',
-        NOW() + interval '5 days 18 hours',
-        NOW() + interval '5 days 20 hours',
-        'Navigating Legalities: Wills & Power of Attorney',
-        NULL,
-        'https://meet.google.com/abc-defg-hij',
-        E'Thinking about legal matters while managing the emotional toll of a dementia diagnosis can feel overwhelming. However, establishing a Power of Attorney (POA) and updating wills is crucial to ensuring your loved one’s wishes are respected when they can no longer advocate for themselves. This session aims to demystify the legal jargon and provide a clear, step-by-step roadmap for families in Malaysia.\n\nWe will cover the specific differences between a standard POA and a Lasting Power of Attorney (LPA), and why the timing of these documents is critical regarding mental capacity assessments. Our guest lawyer will also touch upon handling bank accounts, insurance claims, and managing assets to fund long-term care without running into bureaucratic roadblocks.\n\nThis session is free of charge. We encourage you to submit your questions anonymously via the registration link beforehand so we can address specific concerns regarding inheritance and guardianship without compromising your privacy. Handouts with legal templates will be emailed after the session.'
-    ),
-    (
-        'Penang Carers Alliance',
-        false,
-        'Georgetown Community Centre, Hall B',
-        NOW() + interval '1 week 09 hours',
-        NOW() + interval '1 week 13 hours',
-        'Caregiver Burnout: A Morning of Respite',
+        'Penang Memory Café: Coffee, Cake & Connection',
+        'George Town Care Network',
+        false, -- Physical
+        'The Heritage Hall, George Town',
         'Penang',
-        NULL, -- Walk-in / RSVP
-        E'Caregiving is a marathon, not a sprint, and too often the caregiver’s health is neglected. We invite you to a physical gathering at the Georgetown Community Centre specifically focused on YOU—the caregiver. This is a morning dedicated to mental health, relaxation, and connecting with others who truly understand the weight you carry every day.\n\nThe morning will begin with a guided breathing and mindfulness session led by a clinical psychologist, focusing on techniques you can use in high-stress moments at home. Following this, we will have a "Respite Roundtable" where we share resources for temporary care options in Penang, giving you the practical tools to take necessary breaks. Light refreshments and brunch will be served.\n\nVolunteers from the local nursing college will be present in the adjacent room to provide supervised activities for your loved ones with dementia, should you need to bring them along. This allows you to fully engage in the workshop with peace of mind. Please RSVP so we can arrange adequate staffing for the supervised care room.'
+        NOW() + interval '5 days 10 hours', -- Morning event
+        NOW() + interval '5 days 13 hours',
+        'https://www.google.com',
+        'We invite you and your loved ones living with dementia to our monthly Memory Café, a safe and welcoming gathering designed to bring joy back into social outings. For many families, going out to public restaurants can be stressful due to fear of judgment or behavioral unpredictability. Our Memory Café is different—it is a sanctuary where everyone understands, and everyone belongs.
+
+Come enjoy complimentary local coffee, tea, and traditional kuih in a relaxed atmosphere. This month, we are featuring a gentle music therapy session led by local musicians playing nostalgic hits from the 60s and 70s. Music has a unique way of unlocking memories and sparking joy even when words fail. There is no pressure to participate; sitting back and listening is perfectly encouraged.
+
+Volunteers will be on hand to assist, allowing caregivers a moment to breathe and connect with one another. This is not a clinical setting or a support group meeting, but simply a time to relax and enjoy the company of others who walk a similar path. Wheelchair access is available via the main ramp.'
     ),
     (
-        'Selangor Memory Café',
-        false,
-        'The Bee Cafe, Jaya One',
-        NOW() + interval '2 weeks 14 hours',
-        NOW() + interval '2 weeks 16 hours',
-        'Monthly Memory Café: Music & Connection',
+        'Legal Essentials: Power of Attorney & Wills',
+        'Legal Aid for Seniors',
+        true, -- Online
+        'Microsoft Teams',
         'Selangor',
-        'https://carebridge.my/events/memory-cafe-sept',
-        E'Music has the power to unlock memories and emotions that words sometimes cannot. Join us for our monthly Memory Café, a comfortable, judgement-free social gathering for people with dementia and their care partners. This month, we are featuring a live acoustic performance of classic hits from the 60s and 70s, designed to encourage sing-alongs and toe-tapping.\n\nThe Memory Café is about focusing on what our loved ones can still do, rather than what they cannot. It is an opportunity to socialize without the fear of stigma or embarrassment if a drink is spilled or a sentence is repeated. The environment is relaxed, the lighting is gentle, and the staff are trained to be dementia-friendly.\n\nCoffee, tea, and cakes are on the house, sponsored by the Rotary Club. Whether you want to dance, sing, or just sit back and listen, you are welcome here. It is a wonderful opportunity for caregivers to chat with one another while their loved ones are engaged and happy. We look forward to seeing you there!'
+        NOW() + interval '10 days 14 hours',
+        NOW() + interval '10 days 16 hours',
+        'https://www.google.com',
+        'Navigating the legal landscape while caring for someone with dementia can be overwhelming, yet it is one of the most critical steps in ensuring their long-term protection. This seminar addresses the difficult but necessary conversations regarding the Mental Capacity Act and the specific legal instruments available in Malaysia. We will discuss the crucial difference between a Power of Attorney (PA) and a Lasting Power of Attorney (LPA), and why timing is everything.
+
+Our guest legal experts will walk you through the process of freezing accounts, managing joint assets, and what happens if a loved one loses the capacity to sign documents before arrangements are made. We will break down complex legal jargon into plain language, ensuring you understand your rights and responsibilities as a next-of-kin or appointed guardian.
+
+We know thinking about the future can be frightening. This session aims to replace fear with preparedness. By handling these administrative burdens now, you can focus more on providing care and love in the future. Checklists and template guides will be provided to all registered participants via email after the session.'
+    ),
+    (
+        'Caregiver Burnout: Putting Your Oxygen Mask First',
+        'Mental Health Association',
+        false, -- Physical
+        'Community Center, Johor Bahru',
+        'Johor',
+        NOW() + interval '1 day 9 hours',
+        NOW() + interval '1 day 11 hours',
+        'https://www.google.com',
+        'You spend your days (and often nights) caring for someone else, but who is caring for you? Caregiver burnout is a very real, physical, and emotional state of exhaustion that affects nearly all family caregivers at some point. Symptoms include irritability, sleep problems, weight changes, and feelings of hopelessness. In this intimate support circle, we validate these feelings: it is not selfish to need a break.
+
+Facilitated by a licensed counselor, this workshop focuses on "micro-self-care"—small, manageable actions you can take even on your busiest days to lower cortisol levels. We will practice simple breathing techniques and cognitive reframing exercises to help manage the guilt that often accompanies taking time for oneself.
+
+We will also facilitate a sharing circle. Hearing others say, "I feel that way too," is a powerful antidote to the isolation of dementia care. Refreshments will be provided. Please note: Respite care volunteers are available in the adjacent room to look after your loved one while you attend this session, so you can attend with full peace of mind.'
     );
 
--- 4. Insert Registrations (Linking Users to Events via Firebase UID and Event IDs)
--- Note: We assume IDs 1, 2, 3, 4 based on the TRUNCATE RESTART IDENTITY above.
+-- 4. Insert Event Registrations
+-- We map specific users to the events created above using subqueries to find Event IDs.
 
 INSERT INTO event_registrations (event_id, user_uid)
 VALUES
-    -- Event 1: Sundowning (Online) - Popular
-    (1, 'uid_user_101'), -- Ravi
-    (1, 'uid_user_102'), -- Mei Ling
-    (1, 'uid_user_105'), -- Farid
-    
-    -- Event 2: Legalities (Online)
-    (2, 'uid_user_103'), -- Ahmad
-    (2, 'uid_user_101'), -- Ravi (active user)
-    
-    -- Event 3: Caregiver Burnout (In-Person Penang)
-    -- Only the user in Penang and maybe a admin registered
-    (3, 'uid_admin_002'), -- Sarah (Admin attending)
-    
-    -- Event 4: Memory Cafe (In-Person Selangor)
-    (4, 'uid_user_102'), -- Mei Ling (Lives in Selangor)
-    (4, 'uid_admin_001'); -- Dr Aminah (Lives in Selangor)
+    -- Ahmad (Johor) registers for the Online Sundowning talk and the physical Burnout session in Johor
+    (
+        (SELECT id FROM events WHERE event_name LIKE 'Understanding Sundowning%' LIMIT 1), 
+        'uid_caregiver_ahmad'
+    ),
+    (
+        (SELECT id FROM events WHERE event_name LIKE 'Caregiver Burnout%' LIMIT 1), 
+        'uid_caregiver_ahmad'
+    ),
+
+    -- Mei (Penang) registers for the Memory Cafe in Penang and the Online Legal talk
+    (
+        (SELECT id FROM events WHERE event_name LIKE 'Penang Memory Café%' LIMIT 1), 
+        'uid_caregiver_mei'
+    ),
+    (
+        (SELECT id FROM events WHERE event_name LIKE 'Legal Essentials%' LIMIT 1), 
+        'uid_caregiver_mei'
+    ),
+
+    -- Nurse Ravi registers for the Sundowning talk (for professional development)
+    (
+        (SELECT id FROM events WHERE event_name LIKE 'Understanding Sundowning%' LIMIT 1), 
+        'uid_nurse_ravi'
+    );
 
 -- +goose StatementEnd
 

@@ -6,9 +6,9 @@ CREATE TYPE STATES AS ENUM (
     'Perak', 'Perlis', 'Penang', 'Sabah', 'Sarawak', 'Selangor', 'Terengganu'
 );
 
-ALTER TABLE USERS
-ADD COLUMN STATE STATES,
-ADD COLUMN AGE INT;
+ALTER TABLE users
+ADD COLUMN state STATES,
+ADD COLUMN date_of_birth DATE;
 -- +goose StatementEnd
 
 -- +goose Down
