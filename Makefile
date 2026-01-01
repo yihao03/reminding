@@ -1,6 +1,7 @@
 include .env
 
 SERVER_PATH=./cmd/server/main.go
+DATABASE_URL=postgresql://remindme_3tox_user:q2BFCn36Z6Mji0dNk1hphM87soe9ZMmA@dpg-d4rnsbc9c44c738c1jng-a.singapore-postgres.render.com/remindme_3tox
 SQLC_PATH=./database
 
 run:
