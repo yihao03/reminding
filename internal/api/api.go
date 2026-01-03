@@ -19,6 +19,8 @@ type Response struct {
 
 type Handler = func(http.ResponseWriter, *http.Request, *sqlc.Queries, *firebase.App) error
 
+var MsgInternalError = "An unknown error has occurred"
+
 // HTTPHandler converts the internal Handler type into a standard http.HandlerFunc.
 func HTTPHandler(queries *sqlc.Queries, app *firebase.App, handler Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -53,8 +55,17 @@ func WriteError(code int, err error, w http.ResponseWriter, ctx context.Context)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 
-	res := Response{
-		Messages: []string{err.Error()},
+	var res Response
+
+	if code == http.StatusInternalServerError {
+		res = Response{
+			Messages: []string{MsgInternalError},
+		}
+	} else {
+		// TODO: return array of string as error message instead of multiline string
+		res = Response{
+			Messages: []string{err.Error()},
+		}
 	}
 
 	if err := json.NewEncoder(w).Encode(res); err != nil {
