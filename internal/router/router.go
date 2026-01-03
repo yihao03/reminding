@@ -38,7 +38,7 @@ func SetupRoutes(r *chi.Mux, queries *sqlc.Queries, app *firebase.App) {
 		// Protected routes
 		r.Route("/", func(r chi.Router) {
 			r.Use(appmiddleware.GetAuthMiddleware(app))
-			r.Route("/events", routes.SetupEventRoutes(queries, app))
+			r.Route("/event", routes.SetupEventRoutes(queries, app))
 		})
 	})
 }
@@ -51,7 +51,7 @@ func SetupAdminRoutes(r chi.Router, queries *sqlc.Queries, app *firebase.App) {
 		// Protected routes
 		r.Route("/", func(r chi.Router) {
 			r.Use(appmiddleware.GetAuthMiddleware(app))
-			r.Route("/events", adminroutes.SetupEventRoutes(queries, app))
+			r.Route("/event", adminroutes.SetupEventRoutes(queries, app))
 		})
 	})
 }
