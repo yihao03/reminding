@@ -16,14 +16,15 @@ func Wrap(originalError error, errorMessage string) *AppError {
 }
 
 func New(message string) *AppError {
-	return &AppError{
-		OriginalError: nil,
-		ErrorMessage:  message,
-	}
+	return Wrap(nil, message)
 }
 
 func NewInternalError(originalError error, errorMessage string) *AppError {
 	return Wrap(originalError, "Internal server error: "+errorMessage)
+}
+
+func DecodeError(originalError error) *AppError {
+	return Wrap(originalError, "Error parsing request body: ")
 }
 
 func (e *AppError) Error() string {
