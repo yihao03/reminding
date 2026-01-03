@@ -28,7 +28,7 @@ func HandleReadEvents(w http.ResponseWriter, r *http.Request, queries *sqlc.Quer
 		return nil
 	}
 
-	uid, ok := middleware.GetUserIDFromContext(r.Context())
+	uid, ok := middleware.GetUserUIDFromContext(r.Context())
 	if !ok {
 		api.WriteError(http.StatusUnauthorized, apperrors.New(ErrFailedToGetUserUID), w, r.Context())
 		return nil

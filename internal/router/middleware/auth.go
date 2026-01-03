@@ -51,7 +51,7 @@ func GetAuthMiddleware(app *firebase.App) func(http.Handler) http.Handler {
 	}
 }
 
-func GetUserIDFromContext(ctx context.Context) (string, bool) {
+func GetUserUIDFromContext(ctx context.Context) (string, bool) {
 	val := ctx.Value(UserUIDKey)
 	if val == nil {
 		return "", false

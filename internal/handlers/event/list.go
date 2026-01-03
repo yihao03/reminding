@@ -17,7 +17,7 @@ const (
 )
 
 func HandleGetEvents(w http.ResponseWriter, r *http.Request, queries *sqlc.Queries, app *firebase.App) error {
-	uid, ok := middleware.GetUserIDFromContext(r.Context())
+	uid, ok := middleware.GetUserUIDFromContext(r.Context())
 	if !ok {
 		api.WriteError(http.StatusBadRequest, apperrors.New("User ID not found in context"), w, r.Context())
 		return nil
