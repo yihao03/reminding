@@ -86,6 +86,15 @@ type EventRegistration struct {
 	RegistrationDate pgtype.Timestamp
 }
 
+type Journal struct {
+	ID             int32
+	UserUid        string
+	CreatedAt      pgtype.Timestamptz
+	UpdatedAt      pgtype.Timestamptz
+	Title          string
+	JournalContent string
+}
+
 type User struct {
 	ID          int32
 	FirebaseUid string
