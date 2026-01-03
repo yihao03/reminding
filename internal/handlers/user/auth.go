@@ -13,7 +13,6 @@ import (
 )
 
 const (
-	ErrParseAuthView = "Error parsing auth view"
 	ErrGetAuthClient = "failed to get firebase auth client"
 	ErrInvalidToken  = "Token invalid"
 )
@@ -22,7 +21,7 @@ func HandleAuthorizeUser(w http.ResponseWriter, r *http.Request, queries *sqlc.Q
 	var authview userview.AuthView
 	if err := api.Decode(r, &authview); err != nil {
 		api.WriteError(http.StatusBadRequest,
-			apperrors.Wrap(err, "Invalid data: "), w, r.Context())
+			apperrors.DecodeError(err), w, r.Context())
 		return nil
 	}
 

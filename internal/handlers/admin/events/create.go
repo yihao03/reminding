@@ -22,7 +22,7 @@ func HandleCreateEvents(w http.ResponseWriter, r *http.Request, queries *sqlc.Qu
 	var eventParams eventview.EventCreateView
 	err := api.Decode(r, &eventParams)
 	if err != nil {
-		api.WriteError(http.StatusBadRequest, err, w, r.Context())
+		api.WriteError(http.StatusBadRequest, apperrors.DecodeError(err), w, r.Context())
 		return nil
 	}
 
