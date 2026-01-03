@@ -2,6 +2,7 @@ package events
 
 import (
 	"net/http"
+	"time"
 
 	firebase "firebase.google.com/go/v4"
 	"github.com/yihao03/reminding/apperrors"
@@ -11,8 +12,10 @@ import (
 )
 
 var (
-	ErrCreateEvent     = "error creating event"
-	SuccessCreateEvent = "event created successfully"
+	ErrCreateEvent        = "error creating event"
+	ErrEndBeforeStart     = "End time is before start time"
+	ErrEnforceEventFuture = "Event must be in the future"
+	SuccessCreateEvent    = "event created successfully"
 )
 
 func HandleCreateEvents(w http.ResponseWriter, r *http.Request, queries *sqlc.Queries, app *firebase.App) error {
@@ -20,6 +23,17 @@ func HandleCreateEvents(w http.ResponseWriter, r *http.Request, queries *sqlc.Qu
 	err := api.Decode(r, &eventParams)
 	if err != nil {
 		api.WriteError(http.StatusBadRequest, err, w, r.Context())
+		return nil
+	}
+
+	// validate data
+	if eventParams.EndTime.Before(eventParams.StartTime) {
+		api.WriteError(http.StatusBadRequest, apperrors.New(ErrEndBeforeStart), w, r.Context())
+		return nil
+	}
+
+	if eventParams.StartTime.Before(time.Now()) {
+		api.WriteError(http.StatusBadRequest, apperrors.New(ErrEnforceEventFuture), w, r.Context())
 		return nil
 	}
 
