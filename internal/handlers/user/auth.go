@@ -21,7 +21,9 @@ const (
 func HandleAuthorizeUser(w http.ResponseWriter, r *http.Request, queries *sqlc.Queries, app *firebase.App) error {
 	var authview userview.AuthView
 	if err := api.Decode(r, &authview); err != nil {
-		return apperrors.NewInternalError(err, ErrParseAuthView)
+		api.WriteError(http.StatusBadRequest,
+			apperrors.Wrap(err, "Invalid data: "), w, r.Context())
+		return nil
 	}
 
 	auth, err := app.Auth(r.Context())
