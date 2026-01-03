@@ -15,7 +15,7 @@ import (
 	"github.com/yihao03/reminding/internal/router/middleware"
 )
 
-var (
+const (
 	ErrFailedToGetUserUID  = "Failed to retrieve user UID from context"
 	ErrInvalidEventIDParam = "Invalid event ID parameter"
 	ErrUserRegistered      = "User already registered for this event"

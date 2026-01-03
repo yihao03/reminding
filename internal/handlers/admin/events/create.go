@@ -11,7 +11,7 @@ import (
 	"github.com/yihao03/reminding/internal/views/eventview"
 )
 
-var (
+const (
 	ErrCreateEvent        = "error creating event"
 	ErrEndBeforeStart     = "End time is before start time"
 	ErrEnforceEventFuture = "Event must be in the future"

@@ -11,7 +11,7 @@ import (
 	"github.com/yihao03/reminding/internal/api"
 )
 
-var (
+const (
 	ErrRetrieveFirebaseClient = "Error retrieving firebase client"
 	ErrUnauthorized           = "Unauthorized access"
 	ErrInvalidToken           = "Invalid Firebase ID token"

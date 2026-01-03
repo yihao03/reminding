@@ -15,7 +15,7 @@ import (
 	"github.com/yihao03/reminding/internal/views/eventview"
 )
 
-var (
+const (
 	ErrMissingIDParam = "missing id parameter"
 	ErrEventNotFound  = "event with id %d not found"
 )

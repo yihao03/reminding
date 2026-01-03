@@ -11,7 +11,7 @@ import (
 	"github.com/yihao03/reminding/internal/views/eventview"
 )
 
-var (
+const (
 	ErrGetEvents     = "Error getting events"
 	SuccessGetEvents = "Events retrieved successfully"
 )

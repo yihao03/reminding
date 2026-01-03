@@ -11,7 +11,7 @@ import (
 	"github.com/yihao03/reminding/internal/views/userview"
 )
 
-var (
+const (
 	ErrParseUserView = "Error parsing user view"
 	ErrCreateUser    = "Error creating user"
 )
@@ -19,7 +19,7 @@ var (
 func CreateUser(w http.ResponseWriter, r *http.Request, queries *sqlc.Queries, app *firebase.App) error {
 	var req userview.CreateUserView
 	if err := api.Decode(r, &req); err != nil {
-		api.WriteError(http.StatusBadRequest, apperrors.Wrap(err, ErrParseUserView), w, r.Context())
+		api.WriteError(http.StatusBadRequest, apperrors.DecodeError(err), w, r.Context())
 		return nil
 	}
 
