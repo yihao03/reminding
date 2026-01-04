@@ -23,6 +23,16 @@ func ToPGTime(t *time.Time) pgtype.Timestamptz {
 	}
 }
 
+func ToPGDate(t *time.Time) pgtype.Date {
+	if t == nil {
+		return pgtype.Date{Valid: false}
+	}
+	return pgtype.Date{
+		Time:  *t,
+		Valid: true,
+	}
+}
+
 func ToPGInt4(i *int32) pgtype.Int4 {
 	if i == nil {
 		return pgtype.Int4{Valid: false}

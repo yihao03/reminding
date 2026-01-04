@@ -1,4 +1,4 @@
-package events
+package event
 
 import (
 	"errors"
@@ -15,7 +15,7 @@ import (
 	"github.com/yihao03/reminding/internal/router/middleware"
 )
 
-var (
+const (
 	ErrFailedToGetUserUID  = "Failed to retrieve user UID from context"
 	ErrInvalidEventIDParam = "Invalid event ID parameter"
 	ErrUserRegistered      = "User already registered for this event"
@@ -34,7 +34,7 @@ func HandleRegisterEvents(w http.ResponseWriter, r *http.Request, queries *sqlc.
 		return nil
 	}
 
-	userUID, ok := middleware.GetUserIDFromContext(r.Context())
+	userUID, ok := middleware.GetUserUIDFromContext(r.Context())
 	if !ok {
 		api.WriteError(http.StatusUnauthorized, apperrors.New(ErrFailedToGetUserUID), w, r.Context())
 		return nil

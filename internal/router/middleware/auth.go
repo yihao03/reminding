@@ -11,7 +11,7 @@ import (
 	"github.com/yihao03/reminding/internal/api"
 )
 
-var (
+const (
 	ErrRetrieveFirebaseClient = "Error retrieving firebase client"
 	ErrUnauthorized           = "Unauthorized access"
 	ErrInvalidToken           = "Invalid Firebase ID token"
@@ -51,7 +51,7 @@ func GetAuthMiddleware(app *firebase.App) func(http.Handler) http.Handler {
 	}
 }
 
-func GetUserIDFromContext(ctx context.Context) (string, bool) {
+func GetUserUIDFromContext(ctx context.Context) (string, bool) {
 	val := ctx.Value(UserUIDKey)
 	if val == nil {
 		return "", false

@@ -148,7 +148,7 @@ func (q *Queries) GetEventByIdAndUid(ctx context.Context, arg GetEventByIdAndUid
 }
 
 const getEventRegisteredUsers = `-- name: GetEventRegisteredUsers :many
-SELECT u.id, u.firebase_uid, u.created_at, u.display_name, u.email, u.updated_at, u.is_admin, u.state, u.age
+SELECT u.id, u.firebase_uid, u.created_at, u.display_name, u.email, u.updated_at, u.is_admin, u.state, u.date_of_birth
 FROM event_registrations AS er
 INNER JOIN users AS u
     ON er.user_uid = u.firebase_uid
@@ -173,7 +173,7 @@ func (q *Queries) GetEventRegisteredUsers(ctx context.Context, eventID int32) ([
 			&i.UpdatedAt,
 			&i.IsAdmin,
 			&i.State,
-			&i.Age,
+			&i.DateOfBirth,
 		); err != nil {
 			return nil, err
 		}

@@ -13,7 +13,6 @@ import (
 )
 
 const (
-	ErrParseAuthView = "Error parsing auth view"
 	ErrGetAuthClient = "failed to get firebase auth client"
 	ErrInvalidToken  = "Token invalid"
 )
@@ -21,7 +20,9 @@ const (
 func HandleAuthorizeUser(w http.ResponseWriter, r *http.Request, queries *sqlc.Queries, app *firebase.App) error {
 	var authview userview.AuthView
 	if err := api.Decode(r, &authview); err != nil {
-		return apperrors.NewInternalError(err, ErrParseAuthView)
+		api.WriteError(http.StatusBadRequest,
+			apperrors.DecodeError(err), w, r.Context())
+		return nil
 	}
 
 	auth, err := app.Auth(r.Context())
