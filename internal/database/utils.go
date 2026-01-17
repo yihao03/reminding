@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/yihao03/reminding/internal/database/sqlc"
 )
 
 func ToPGText(s string) pgtype.Text {
@@ -40,5 +41,17 @@ func ToPGInt4(i *int32) pgtype.Int4 {
 	return pgtype.Int4{
 		Int32: *i,
 		Valid: true,
+	}
+}
+
+func ToNullStates(s string) sqlc.NullStates {
+	if s == "" {
+		return sqlc.NullStates{
+			Valid: false,
+		}
+	}
+	return sqlc.NullStates{
+		Valid:  true,
+		States: sqlc.States(s),
 	}
 }
