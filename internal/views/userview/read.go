@@ -1,11 +1,16 @@
 package userview
 
-import "github.com/yihao03/reminding/internal/database/sqlc"
+import (
+	"time"
+
+	"github.com/yihao03/reminding/internal/database/sqlc"
+)
 
 type UserView struct {
-	FirebaseUID string `json:"uid"`
-	Email       string `json:"email"`
-	Name        string `json:"username"`
+	FirebaseUID string    `json:"uid"`
+	Email       string    `json:"email"`
+	Name        string    `json:"displayName"`
+	DateOfBirth time.Time `json:"dateOfBirth"`
 }
 
 func ToUserView(user *sqlc.User) *UserView {
@@ -13,5 +18,6 @@ func ToUserView(user *sqlc.User) *UserView {
 		FirebaseUID: user.FirebaseUid,
 		Email:       user.Email,
 		Name:        user.DisplayName,
+		DateOfBirth: user.DateOfBirth.Time,
 	}
 }

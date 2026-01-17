@@ -21,5 +21,6 @@ func (v *CreateUserView) ToCreateUserParams() *sqlc.CreateUserParams {
 		Email:       v.Email,
 		DisplayName: v.DisplayName,
 		DateOfBirth: database.ToPGDate(&v.DateOfBirth),
+		State:       database.ToNullStates(v.State),
 	}
 }
