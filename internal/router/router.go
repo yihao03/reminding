@@ -40,6 +40,7 @@ func SetupRoutes(r *chi.Mux, queries *sqlc.Queries, app *firebase.App) {
 			r.Use(appmiddleware.GetAuthMiddleware(app))
 			r.Route("/event", routes.SetupEventRoutes(queries, app))
 			r.Route("/journal", routes.SetupJournalRoutes(queries, app))
+			r.Route("/quote", routes.SetupQuoteRoute(queries, app))
 		})
 	})
 }
