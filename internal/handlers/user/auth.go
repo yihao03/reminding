@@ -1,11 +1,9 @@
 package user
 
 import (
-	"errors"
 	"net/http"
 
 	firebase "firebase.google.com/go/v4"
-	"github.com/jackc/pgx/v5"
 	"github.com/yihao03/reminding/apperrors"
 	"github.com/yihao03/reminding/internal/api"
 	"github.com/yihao03/reminding/internal/database/sqlc"
@@ -36,17 +34,10 @@ func HandleAuthorizeUser(w http.ResponseWriter, r *http.Request, queries *sqlc.Q
 		return nil
 	}
 
-	userParams := sqlc.CreateUserParams{
-		FirebaseUid: token.UID,
-		DisplayName: authview.User.Name,
-		Email:       authview.User.Email,
-	}
-
-	user, err := queries.CreateUser(r.Context(), userParams)
+	user, err := queries.GetUserByUid(r.Context(), token.UID)
 	if err != nil {
-		if !errors.Is(err, pgx.ErrNoRows) {
-			return apperrors.Wrap(err, "Failed to create user if absent")
-		}
+		api.WriteError(http.StatusInternalServerError, apperrors.Wrap(err, "failed to get user by uid"), w, r.Context())
+		return nil
 	}
 
 	view := userview.ToUserView(&user)
