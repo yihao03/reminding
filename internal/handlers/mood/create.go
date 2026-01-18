@@ -1,13 +1,14 @@
+// Package mood provides handlers for mood-related operations.
 package mood
 
 import (
 	"net/http"
-	"strconv"
+	"time"
 
 	firebase "firebase.google.com/go/v4"
-	"github.com/go-chi/chi/v5"
 	"github.com/yihao03/reminding/apperrors"
 	"github.com/yihao03/reminding/internal/api"
+	"github.com/yihao03/reminding/internal/database"
 	"github.com/yihao03/reminding/internal/database/sqlc"
 	"github.com/yihao03/reminding/internal/router/middleware"
 	"github.com/yihao03/reminding/internal/views/moodview"
@@ -16,16 +17,10 @@ import (
 const ErrLogMood = "error logging mood"
 
 func HandleLogMood(w http.ResponseWriter, r *http.Request, queries *sqlc.Queries, app *firebase.App) error {
-	mood := chi.URLParam(r, "mood")
-	if mood == "" {
+	var logparams moodview.MoodLogView
+	if err := api.Decode(r, &logparams); err != nil {
 		api.WriteError(http.StatusBadRequest, apperrors.New("mood parameter is required"), w, r.Context())
-	}
-
-	// Mood is stored as int enum in the database
-	// the moods are currently hardcoded in the frontned
-	moodEnum, err := strconv.Atoi(mood)
-	if err != nil {
-		return apperrors.NewInternalError(err, "invalid mood parameter")
+		return err
 	}
 
 	uid, ok := middleware.GetUserUIDFromContext(r.Context())
@@ -35,21 +30,44 @@ func HandleLogMood(w http.ResponseWriter, r *http.Request, queries *sqlc.Queries
 
 	params := sqlc.AddMoodParams{
 		UserUid: uid,
-		Mood:    int32(moodEnum),
+		Mood:    logparams.Mood,
 	}
 
-	_, err = queries.AddMood(r.Context(), params)
+	pool, ok := middleware.GetDBPoolFromContext(r.Context())
+	if !ok {
+		return apperrors.NewInternalError(nil, "database pool not found in context")
+	}
+
+	tx, err := pool.Begin(r.Context())
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(r.Context())
+	qtx := queries.WithTx(tx)
+
+	_, err = qtx.AddMood(r.Context(), params)
 	if err != nil {
 		return apperrors.NewInternalError(err, ErrLogMood)
 	}
 
-	count, err := queries.GetMonthlyMoodCountByUserUid(r.Context(), uid)
+	startTime := time.Now().AddDate(0, 0, -30)
+
+	paramsGet := sqlc.GetMonthlyMoodCountByUserUidParams{
+		UserUid:   uid,
+		CreatedAt: database.ToPGTime(&startTime),
+	}
+
+	count, err := qtx.GetMonthlyMoodCountByUserUid(r.Context(), paramsGet)
 	if err != nil {
 		return apperrors.NewInternalError(err, "error retrieving monthly mood count")
 	}
 
-	view := moodview.ToMoodReadViewArray(count)
+	if err := tx.Commit(r.Context()); err != nil {
+		return apperrors.NewInternalError(err, "error committing mood transaction")
+	}
 
-	api.WriteResponse(view, w)
+	viewPtr := moodview.ToMoodReadView(true, &count)
+
+	api.WriteResponse(*viewPtr, w)
 	return nil
 }
