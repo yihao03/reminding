@@ -30,7 +30,7 @@ func main() {
 	queries, pgxPool := database.Connect()
 	defer pgxPool.Close()
 
-	r := router.Setup(queries, app)
+	r := router.Setup(queries, app, pgxPool)
 	cors := getCorsConfig().Handler(r)
 
 	server := &http.Server{
