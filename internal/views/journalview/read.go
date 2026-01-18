@@ -7,6 +7,7 @@ import (
 )
 
 type ReadView struct {
+	ID             int32     `json:"id"`
 	UpdatedAt      time.Time `json:"updatedAt"`
 	CreatedAt      time.Time `json:"createdAt"`
 	Title          string    `json:"title"`
@@ -15,6 +16,7 @@ type ReadView struct {
 
 func ToReadView(j *sqlc.Journal) *ReadView {
 	return &ReadView{
+		ID:             j.ID,
 		UpdatedAt:      j.UpdatedAt.Time,
 		CreatedAt:      j.CreatedAt.Time,
 		Title:          j.Title,
