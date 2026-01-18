@@ -14,17 +14,24 @@ var quotes = []struct {
 	Text   string
 	Author string
 }{
-	{Text: "You are doing something extraordinary. Every moment of patience, every act of love, every sacrifice you make matters more than you know.", Author: "Maya Angelou"},
-	{Text: "Caring for someone with dementia is not about fixing them, it's about being present with them in their reality.", Author: "Teepa Snow"},
-	{Text: "In the midst of caring for others, remember to care for yourself. You cannot pour from an empty cup.", Author: "Eleanor Brownn"},
-	{Text: "The work you do may not feel heroic, but your daily acts of kindness are changing someone's world.", Author: "Rachel Naomi Remen"},
-	{Text: "Love doesn't require memory. Your presence and care speak louder than any words they may have forgotten.", Author: "Lisa Genova"},
-	{Text: "Strength isn't about never feeling overwhelmed. It's about continuing to show up even when you do.", Author: "Brené Brown"},
-	{Text: "You are not losing the person you love—you are learning new ways to connect with them.", Author: "Judy Cornish"},
+	{Text: "Dementia care is not measured by perfection, but by presence.", Author: ""},
+	{Text: "Even when recognition is lost, connection is still possible.", Author: ""},
+	{Text: "When memory fades, love becomes the language that remains.", Author: ""},
+	{Text: "Caregivers learn to see the person behind the confusion.", Author: ""},
+	{Text: "In dementia care, understanding matters more than correction.", Author: ""},
+	{Text: "Caregivers carry stories when those they love no longer can.", Author: ""},
+	{Text: "Dementia does not erase a person - it changes how we reach them.", Author: ""},
+	{Text: "They may forget your name, but they can feel your kindness.", Author: ""},
+	{Text: "In a world of forgetting, caregivers become the keepers of identity.", Author: ""},
+	{Text: "The heart remembers what the mind forgets.", Author: ""},
+	{Text: "Every gentle response preserves dignity.", Author: ""},
+	{Text: "Dementia changes the story, but it does not erase the meaning.", Author: ""},
+	{Text: "Dementia caregiving is love practiced through repetition.", Author: ""},
+	{Text: "To care is to carry another's burden, even when the road is long.", Author: ""},
 }
 
 func HandleReadQuote(w http.ResponseWriter, r *http.Request, queries *sqlc.Queries, app *firebase.App) error {
-	day := time.Now().Weekday()
+	day := time.Now().Day() % 14
 	quote := quotes[day]
 
 	api.WriteResponse(quoteview.ToReadQuoteView(quote.Text, quote.Author), w)
