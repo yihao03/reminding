@@ -95,6 +95,13 @@ type Journal struct {
 	JournalContent string
 }
 
+type MoodTracker struct {
+	ID        int32
+	UserUid   string
+	Mood      int32
+	CreatedAt pgtype.Timestamp
+}
+
 type User struct {
 	ID          int32
 	FirebaseUid string
