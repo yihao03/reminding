@@ -5,7 +5,7 @@ CREATE TABLE mood_tracker (
     id         SERIAL       PRIMARY KEY,
     user_uid   VARCHAR(255) NOT NULL REFERENCES users (firebase_uid),
     mood       INTEGER      NOT NULL,
-    created_at TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ    DEFAULT CURRENT_TIMESTAMP
 );
 -- +goose StatementEnd
 

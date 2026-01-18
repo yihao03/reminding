@@ -99,7 +99,7 @@ type MoodTracker struct {
 	ID        int32
 	UserUid   string
 	Mood      int32
-	CreatedAt pgtype.Timestamp
+	CreatedAt pgtype.Timestamptz
 }
 
 type User struct {

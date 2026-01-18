@@ -8,12 +8,14 @@ RETURNING *;
 
 -- name: ListJournals :many
 SELECT
-    title,
-    journal_content
+    id,
+    created_at,
+    updated_at,
+    title
 FROM journals
 WHERE user_uid = $1
-ORDER BY updated_at;
+ORDER BY updated_at DESC;
 
 -- name: GetJournal :one
 SELECT * FROM journals
-WHERE id = $1;
+WHERE id = $1 AND user_uid = $2;

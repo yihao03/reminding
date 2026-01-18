@@ -10,6 +10,7 @@ import (
 
 func SetupMoodRoutes(queries *sqlc.Queries, app *firebase.App) func(chi.Router) {
 	return func(r chi.Router) {
-		r.Get("/log", api.HTTPHandler(queries, app, mood.HandleLogMood))
+		r.Get("/today", api.HTTPHandler(queries, app, mood.HandleCheckMood))
+		r.Post("/log", api.HTTPHandler(queries, app, mood.HandleLogMood))
 	}
 }

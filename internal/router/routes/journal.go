@@ -11,5 +11,7 @@ import (
 func SetupJournalRoutes(queries *sqlc.Queries, app *firebase.App) func(chi.Router) {
 	return func(r chi.Router) {
 		r.Post("/create", api.HTTPHandler(queries, app, journal.HandleCreateJournal))
+		r.Get("/", api.HTTPHandler(queries, app, journal.HandleListJournals))
+		r.Get("/{id}", api.HTTPHandler(queries, app, journal.HandleGetJournal))
 	}
 }

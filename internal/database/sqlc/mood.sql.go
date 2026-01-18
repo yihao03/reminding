@@ -7,6 +7,8 @@ package sqlc
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const addMood = `-- name: AddMood :one
@@ -34,23 +36,43 @@ func (q *Queries) AddMood(ctx context.Context, arg AddMoodParams) (MoodTracker, 
 	return i, err
 }
 
+const checkUserLoggedMoodToday = `-- name: CheckUserLoggedMoodToday :one
+SELECT EXISTS(
+    SELECT 1
+    FROM mood_tracker
+    WHERE user_uid = $1 AND created_at::DATE = CURRENT_DATE
+) AS has_logged_mood_today
+`
+
+func (q *Queries) CheckUserLoggedMoodToday(ctx context.Context, userUid string) (bool, error) {
+	row := q.db.QueryRow(ctx, checkUserLoggedMoodToday, userUid)
+	var has_logged_mood_today bool
+	err := row.Scan(&has_logged_mood_today)
+	return has_logged_mood_today, err
+}
+
 const getMonthlyMoodCountByUserUid = `-- name: GetMonthlyMoodCountByUserUid :many
 SELECT
     mood,
     COUNT(*) AS occurrence_count
 FROM mood_tracker
-WHERE user_uid = $1 AND entry_date >= NOW() - INTERVAL '30 days'
+WHERE user_uid = $1 AND created_at >= $2
 GROUP BY mood
 ORDER BY occurrence_count DESC
 `
+
+type GetMonthlyMoodCountByUserUidParams struct {
+	UserUid   string
+	CreatedAt pgtype.Timestamptz
+}
 
 type GetMonthlyMoodCountByUserUidRow struct {
 	Mood            int32
 	OccurrenceCount int64
 }
 
-func (q *Queries) GetMonthlyMoodCountByUserUid(ctx context.Context, userUid string) ([]GetMonthlyMoodCountByUserUidRow, error) {
-	rows, err := q.db.Query(ctx, getMonthlyMoodCountByUserUid, userUid)
+func (q *Queries) GetMonthlyMoodCountByUserUid(ctx context.Context, arg GetMonthlyMoodCountByUserUidParams) ([]GetMonthlyMoodCountByUserUidRow, error) {
+	rows, err := q.db.Query(ctx, getMonthlyMoodCountByUserUid, arg.UserUid, arg.CreatedAt)
 	if err != nil {
 		return nil, err
 	}

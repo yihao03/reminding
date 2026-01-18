@@ -7,6 +7,8 @@ package sqlc
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createJournal = `-- name: CreateJournal :one
@@ -40,11 +42,16 @@ func (q *Queries) CreateJournal(ctx context.Context, arg CreateJournalParams) (J
 
 const getJournal = `-- name: GetJournal :one
 SELECT id, user_uid, created_at, updated_at, title, journal_content FROM journals
-WHERE id = $1
+WHERE id = $1 AND user_uid = $2
 `
 
-func (q *Queries) GetJournal(ctx context.Context, id int32) (Journal, error) {
-	row := q.db.QueryRow(ctx, getJournal, id)
+type GetJournalParams struct {
+	ID      int32
+	UserUid string
+}
+
+func (q *Queries) GetJournal(ctx context.Context, arg GetJournalParams) (Journal, error) {
+	row := q.db.QueryRow(ctx, getJournal, arg.ID, arg.UserUid)
 	var i Journal
 	err := row.Scan(
 		&i.ID,
@@ -59,16 +66,20 @@ func (q *Queries) GetJournal(ctx context.Context, id int32) (Journal, error) {
 
 const listJournals = `-- name: ListJournals :many
 SELECT
-    title,
-    journal_content
+    id,
+    created_at,
+    updated_at,
+    title
 FROM journals
 WHERE user_uid = $1
-ORDER BY updated_at
+ORDER BY updated_at DESC
 `
 
 type ListJournalsRow struct {
-	Title          string
-	JournalContent string
+	ID        int32
+	CreatedAt pgtype.Timestamptz
+	UpdatedAt pgtype.Timestamptz
+	Title     string
 }
 
 func (q *Queries) ListJournals(ctx context.Context, userUid string) ([]ListJournalsRow, error) {
@@ -80,7 +91,12 @@ func (q *Queries) ListJournals(ctx context.Context, userUid string) ([]ListJourn
 	var items []ListJournalsRow
 	for rows.Next() {
 		var i ListJournalsRow
-		if err := rows.Scan(&i.Title, &i.JournalContent); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Title,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
